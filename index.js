@@ -1,6 +1,6 @@
 var net = require('net');
 
-var HOST = '192.168.1.66';//'192.168.1.66',
+var HOST = 'localhost';//'192.168.1.66',
 var PORT = 3000;
 
 function carpetBombServer(){
