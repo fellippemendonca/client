@@ -26,7 +26,7 @@ function carpetBombServer(){
 }
 
 
-setInterval(() => { carpetBombServer(); },(2000));
+setInterval(() => { carpetBombServer(); },(7000));
 
 
 
