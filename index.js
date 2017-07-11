@@ -1,6 +1,6 @@
 var net = require('net');
 
-var HOST = 'localhost';//'192.168.1.66',
+var HOST = '192.168.1.66';
 var PORT = 3000;
 
 function carpetBombServer(){
@@ -10,6 +10,10 @@ function carpetBombServer(){
   client.connect(PORT, HOST, function() {
     client.write(messageSample(userId));
     setTimeout(() => { client.destroy() }, (getRandomInt(10, 20)*1000));
+  });
+
+  client.on('connect', function(data) {
+    console.log(`userId: ${userId}, 'event': 'connect'`);
   });
 
   client.on('data', function(data) {
@@ -22,6 +26,10 @@ function carpetBombServer(){
 
   client.on('error', function(err) {
     console.log(err);
+  });
+
+  client.on('timeout', function(data) {
+    console.log(`userId: ${userId}, 'event': 'timeout', obj: ${data}`);
   });
 }
 
@@ -36,7 +44,7 @@ function messageSample(num) {
     event: 'chat',
     id: getRandomInt(10000000, 100000000),
     user: { id: genId, name: `User-${genId}`},
-    chatId: getRandomInt(0, 2),
+    chatId: getRandomInt(0, 3),
     message: `Test message text from User-${genId}`,
     media: {
       type: 'video/picture',
