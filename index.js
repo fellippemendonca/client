@@ -1,15 +1,21 @@
 var net = require('net');
 
-var HOST = 'localhost';
+var HOST = '192.168.1.66';
 var PORT = 5331;
 
 function carpetBombServer(){
   let client = new net.Socket();
-  let userId = getRandomInt(0, 20);
+  client.setNoDelay(true);
+  let userId = JSON.stringify(getRandomInt(0, 9999999)) ;
 
   client.connect(PORT, HOST, function() {
-    client.write(messageSample(userId));
-    setTimeout(() => { client.destroy() }, (getRandomInt(10, 20)*1000));
+    client.write(messageSample(userId, 'handshake'));
+    client.write(messageSample(userId, 'chat-in'));
+    client.write(messageSample(userId, 'chat'));
+    setTimeout(() => {
+      client.write(messageSample(userId, 'chat-out'));
+      client.destroy();
+    }, (getRandomInt(10, 20)*1000));
   });
 
   client.on('connect', function(data) {
@@ -34,26 +40,26 @@ function carpetBombServer(){
 }
 
 
-setInterval(() => { carpetBombServer(); },(3000));
+setInterval(() => { carpetBombServer(); },(50));
 
 
 
-function messageSample(num) {
+function messageSample(num, eventType) {
   let genId = num;
-  return JSON.stringify(
+  var message = 
     {
-    event: 'chat',
-    id: getRandomInt(10000000, 100000000),
-    user: { id: genId, name: `User-${genId}`},
-    chatId: getRandomInt(0, 3),
-    message: `Test message text from User-${genId}`,
-    media: {
-      type: 'video/picture',
-      path: 'http://youtube.com'
+      event: eventType,
+      id: JSON.stringify(getRandomInt(10000000, 100000000)),
+      user: { id: genId, name: `User-${genId}`},
+      chatId: '34573465',//getRandomInt(0, 3),
+      message: `Test message text from User-${genId}`,
+      media: {
+        type: 'video/picture',
+        path: 'http://youtube.com'
     },
-    createdAt: new Date()
+    createdAt: JSON.stringify(new Date())
   }
-);
+  return new Buffer.from(`${JSON.stringify(message)}<ND>`);
 };
 
 // HELPERS
