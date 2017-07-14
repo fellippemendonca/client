@@ -11,7 +11,7 @@ function carpetBombServer(){
   client.connect(PORT, HOST, function() {
     client.write(messageSample(userId, 'handshake'));
     client.write(messageSample(userId, 'chat-in'));
-    client.write(messageSample(userId, 'chat'));
+    client.write(messageSample(userId, 'chat-msg'));
     setTimeout(() => {
       client.write(messageSample(userId, 'chat-out'));
       client.destroy();
@@ -40,7 +40,7 @@ function carpetBombServer(){
 }
 
 
-setInterval(() => { carpetBombServer(); },(50));
+setInterval(() => { carpetBombServer(); },(5000));
 
 
 
@@ -51,7 +51,7 @@ function messageSample(num, eventType) {
       event: eventType,
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
       user: { id: genId, name: `User-${genId}`},
-      chatId: '34573465',//getRandomInt(0, 3),
+      chatId: getRandomInt(0, 2), //'34573465',//
       message: `Test message text from User-${genId}`,
       media: {
         type: 'video/picture',
@@ -59,7 +59,10 @@ function messageSample(num, eventType) {
     },
     createdAt: JSON.stringify(new Date())
   }
-  return new Buffer.from(`${JSON.stringify(message)}<ND>`);
+  let stx = new Buffer ([0x02]);
+  let etx = new Buffer ([0x03]);
+  let stringBuffer = new Buffer.from(`${JSON.stringify(message)}`);
+  return Buffer.concat([stx, stringBuffer, etx]);
 };
 
 // HELPERS
