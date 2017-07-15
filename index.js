@@ -1,22 +1,25 @@
 var net = require('net');
+var loremIpsum = require('lorem-ipsum')
+  , output     = loremIpsum();
 
-var HOST = '192.168.1.66';
+var HOST = 'localhost' //'192.168.1.66';
 var PORT = 5331;
 
 function carpetBombServer(){
   let client = new net.Socket();
   client.setNoDelay(true);
-  let userId = JSON.stringify(getRandomInt(0, 9999999)) ;
+  let userId = JSON.stringify(getRandomInt(0, 9999999999)) ;
 
   client.connect(PORT, HOST, function() {
     client.write(messageSample(userId, 'handshake'));
     client.write(messageSample(userId, 'chat-in'));
     client.write(messageSample(userId, 'chat-msg'));
-    setTimeout(() => {
+  });
+
+  setTimeout(() => {
       client.write(messageSample(userId, 'chat-out'));
       client.destroy();
-    }, (getRandomInt(10, 20)*1000));
-  });
+  }, 50000);
 
   client.on('connect', function(data) {
     console.log(`userId: ${userId}, 'event': 'connect'`);
@@ -28,19 +31,22 @@ function carpetBombServer(){
 
   client.on('close', function() {
     console.log('Connection closed');
+    client.destroy();
   });
 
   client.on('error', function(err) {
     console.log(err);
+    client.destroy();
   });
 
   client.on('timeout', function(data) {
     console.log(`userId: ${userId}, 'event': 'timeout', obj: ${data}`);
+    client.destroy();
   });
 }
 
 
-setInterval(() => { carpetBombServer(); },(5000));
+setInterval(() => { carpetBombServer(); },(100));
 
 
 
@@ -51,8 +57,8 @@ function messageSample(num, eventType) {
       event: eventType,
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
       user: { id: genId, name: `User-${genId}`},
-      chatId: getRandomInt(0, 2), //'34573465',//
-      message: `Test message text from User-${genId}`,
+      chatId: getRandomInt(0, 10), //'34573465',//
+      message: `${loremIpsum({count: 500})} from User-${genId}`,
       media: {
         type: 'video/picture',
         path: 'http://youtube.com'
