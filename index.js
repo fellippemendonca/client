@@ -46,7 +46,7 @@ function carpetBombServer(){
 }
 
 
-setInterval(() => { carpetBombServer(); },(100));
+setInterval(() => { carpetBombServer(); },(1000));
 
 
 
@@ -57,8 +57,8 @@ function messageSample(num, eventType) {
       event: eventType,
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
       user: { id: genId, name: `User-${genId}`},
-      chatId: getRandomInt(0, 10), //'34573465',//
-      message: `${loremIpsum({count: 500})} from User-${genId}`,
+      chatId: getRandomInt(0, 3), //'34573465',//
+      message: `${loremIpsum({count: 300})} from User-${genId}`,
       media: {
         type: 'video/picture',
         path: 'http://youtube.com'
