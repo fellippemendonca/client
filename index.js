@@ -1,14 +1,20 @@
 var net = require('net');
-var loremIpsum = require('lorem-ipsum')
-  , output     = loremIpsum();
+var loremIpsum = require('lorem-ipsum');
+var output = loremIpsum();
 
-var HOST = 'localhost' //'192.168.1.66';
-var PORT = 5331;
+const db = require('./lib/db');
+const Mysql = db().mysql;
 
-function carpetBombServer(){
+
+
+
+var HOST =  'localhost'//  '' chat-stage.timehi.com;
+var PORT = 5333;
+
+function carpetBombServer() {
   let client = new net.Socket();
   client.setNoDelay(true);
-  let userId = JSON.stringify(getRandomInt(0, 9999999999)) ;
+  let userId = JSON.stringify(getRandomInt(0, 9999999999)) ; // 5
 
   client.connect(PORT, HOST, function() {
     client.write(messageSample(userId, 'handshake'));
@@ -19,7 +25,7 @@ function carpetBombServer(){
   setTimeout(() => {
       client.write(messageSample(userId, 'chat-out'));
       client.destroy();
-  }, 50000);
+  }, 10000);
 
   client.on('connect', function(data) {
     console.log(`userId: ${userId}, 'event': 'connect'`);
@@ -46,7 +52,8 @@ function carpetBombServer(){
 }
 
 
-setInterval(() => { carpetBombServer(); },(1000));
+//setInterval(() => { carpetBombServer(); },(3000));
+
 
 
 
@@ -57,7 +64,7 @@ function messageSample(num, eventType) {
       event: eventType,
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
       user: { id: genId, name: `User-${genId}`},
-      chatId: getRandomInt(0, 3), //'34573465',//
+      chatId: '34573465', //getRandomInt(0, 2), //'34573465',//
       message: `${loremIpsum({count: 300})} from User-${genId}`,
       media: {
         type: 'video/picture',
@@ -257,5 +264,133 @@ function getRandomInt(min, max) {
                 });
         }
 
-*/                                                                                                                                                                        
+*/               
 
+
+
+const Sequelize = require('sequelize');
+
+let sequelize = new Sequelize('timehi', 'timehi', 'hftsdgtujgf6754hfy562945312', 
+  {
+    host: 'localhost',
+    port: '3306',
+    dialect: 'mysql'
+  });
+  sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
+
+const Chats = sequelize.define('chats', {
+    name: {
+        type: Sequelize.STRING
+    },
+    description: {
+        type: Sequelize.STRING
+    },
+    imageUrl: {
+        type: Sequelize.STRING, field: 'image_url'
+    },
+    public: {
+        type: Sequelize.INTEGER
+    },
+    createdAt: {
+        type: Sequelize.DATE, field: 'created_at',
+        allowNull: true
+    },
+    updatedAt: {
+        type: Sequelize.DATE, field: 'updated_at',
+        allowNull: true
+    },
+    deletedAt: {
+        type: Sequelize.DATE, field: 'deleted_at',
+        allowNull: true
+    }
+  }
+);
+
+const ChatsMembers = sequelize.define('chats_members', {
+    chatId: {
+      type: Sequelize.INTEGER, field: 'chat_id'
+    },
+    userId: {
+      type: Sequelize.INTEGER, field: 'user_id'
+    },
+    offset: {
+      type: Sequelize.INTEGER
+    },
+    muted: {
+      type: Sequelize.INTEGER
+    },
+    admin: {
+      type: Sequelize.INTEGER
+    }
+  }
+);
+
+
+Chats.hasMany(ChatsMembers);
+ChatsMembers.belongsTo(Chats);
+
+
+
+///*
+
+//sequelize.sync().then(() => {});
+ChatsMembers.find({
+  where: {USER_ID: 2},
+  attributes: [['chat_id', 'chatId'], 'offset', 'muted', 'admin'],
+  include: [
+    {
+      model: Chats,
+      attributes: ['name', 'description', ['image_url','imageUrl'], 'public']
+    }
+  ]
+})
+.then((results) => {
+    //console.log(results.dataValues );
+
+    //console.log(results.chat.dataValues);
+  });
+
+let coord1 = {lat:-23.574636, lon:-46.656381};
+let coord2 = {lat:-23.575531, lon:-46.657406};
+//*/-23.575531, -46.657406
+
+function difference(coord1, coord2) {
+  return {
+    lat: coord1.lat - coord2.lat, 
+    lon: coord1.lon - coord2.lon
+  };
+};
+
+var R = 6371e3; // metres
+var φ1 = degToRad(coord1.lat);
+var φ2 = degToRad(coord2.lat);
+var Δφ = degToRad(coord2.lat-coord1.lat);
+var Δλ = degToRad(coord2.lon-coord1.lon);
+
+var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ/2) * Math.sin(Δλ/2);
+var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+var d = R * c;
+
+console.log(d);
+
+function degToRad(degrees){
+  var pi = Math.PI;
+  return degrees * (pi/180);
+}
+
+
+//sequelize.query(`SELECT * FROM chats`).spread((results, metadata) => {
+  //console.log(results);
+  //console.log(metadata);
+  // Results will be an empty array and metadata will contain the number of affected rows.
+//});
