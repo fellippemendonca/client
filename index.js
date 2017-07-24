@@ -8,7 +8,7 @@ const Mysql = db().mysql;
 
 
 
-var HOST =  'localhost'//  '' chat-stage.timehi.com;
+var HOST =  'localhost';// '192.168.1.66'// '' chat-stage.timehi.com;
 var PORT = 5333;
 
 function carpetBombServer() {
@@ -18,12 +18,13 @@ function carpetBombServer() {
 
   client.connect(PORT, HOST, function() {
     client.write(messageSample(userId, 'handshake'));
-    client.write(messageSample(userId, 'chat-in'));
-    client.write(messageSample(userId, 'chat-msg'));
+    //client.write(messageSample(userId, 'chat-in'));
+    //client.write(messageSample(userId, 'chat-msg'));
+    client.write(messageSample(userId, 'shake'));
   });
 
   setTimeout(() => {
-      client.write(messageSample(userId, 'chat-out'));
+      //client.write(messageSample(userId, 'chat-out'));
       client.destroy();
   }, 10000);
 
@@ -52,7 +53,7 @@ function carpetBombServer() {
 }
 
 
-//setInterval(() => { carpetBombServer(); },(3000));
+setInterval(() => { carpetBombServer(); },(1000));
 
 
 
@@ -63,9 +64,15 @@ function messageSample(num, eventType) {
     {
       event: eventType,
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
-      user: { id: genId, name: `User-${genId}`},
+      user: { 
+        id: genId, 
+        name: `User-${genId}`,
+        picture: 'http://picture.com',
+	      latitude: `-23.575${getRandomInt(000, 999)}`, 
+	      longitude: `-46.656${getRandomInt(000, 999)}`
+      },
       chatId: '34573465', //getRandomInt(0, 2), //'34573465',//
-      message: `${loremIpsum({count: 300})} from User-${genId}`,
+      message: `${loremIpsum({count: 1})} from User-${genId}`,
       media: {
         type: 'video/picture',
         path: 'http://youtube.com'
@@ -77,6 +84,9 @@ function messageSample(num, eventType) {
   let stringBuffer = new Buffer.from(`${JSON.stringify(message)}`);
   return Buffer.concat([stx, stringBuffer, etx]);
 };
+
+//-23.575123, -46.656920
+//-23.575064, -46.656861
 
 // HELPERS
 function getRandomInt(min, max) {
@@ -357,36 +367,6 @@ ChatsMembers.find({
     //console.log(results.chat.dataValues);
   });
 
-let coord1 = {lat:-23.574636, lon:-46.656381};
-let coord2 = {lat:-23.575531, lon:-46.657406};
-//*/-23.575531, -46.657406
-
-function difference(coord1, coord2) {
-  return {
-    lat: coord1.lat - coord2.lat, 
-    lon: coord1.lon - coord2.lon
-  };
-};
-
-var R = 6371e3; // metres
-var φ1 = degToRad(coord1.lat);
-var φ2 = degToRad(coord2.lat);
-var Δφ = degToRad(coord2.lat-coord1.lat);
-var Δλ = degToRad(coord2.lon-coord1.lon);
-
-var a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-        Math.cos(φ1) * Math.cos(φ2) *
-        Math.sin(Δλ/2) * Math.sin(Δλ/2);
-var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-var d = R * c;
-
-console.log(d);
-
-function degToRad(degrees){
-  var pi = Math.PI;
-  return degrees * (pi/180);
-}
 
 
 //sequelize.query(`SELECT * FROM chats`).spread((results, metadata) => {
