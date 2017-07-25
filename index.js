@@ -14,13 +14,13 @@ var PORT = 5333;
 function carpetBombServer() {
   let client = new net.Socket();
   client.setNoDelay(true);
-  let userId = JSON.stringify(getRandomInt(0, 9999999999)) ; // 5
+  let userId = getRandomInt(0, 9999999999) ; // 5
 
   client.connect(PORT, HOST, function() {
-    client.write(messageSample(userId, 'handshake'));
-    //client.write(messageSample(userId, 'chat-in'));
-    //client.write(messageSample(userId, 'chat-msg'));
-    client.write(messageSample(userId, 'shake'));
+    //client.write(messageSample(userId, 'handshake'));
+    client.write(messageSample(userId, 'chat-in'));
+    client.write(messageSample(userId, 'chat-msg'));
+    //client.write(messageSample(userId, 'shake'));
   });
 
   setTimeout(() => {
@@ -53,8 +53,7 @@ function carpetBombServer() {
 }
 
 
-setInterval(() => { carpetBombServer(); },(1000));
-
+setInterval(() => { carpetBombServer(); },(3000));
 
 
 
@@ -63,11 +62,16 @@ function messageSample(num, eventType) {
   var message = 
     {
       event: eventType,
+      auth: {
+        username: 'TimeHi',
+        secret: 'H2nhj675TyhkdghHbcfdku8195312mft',
+        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU'
+      },
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
       user: { 
-        id: genId, 
-        name: `User-${genId}`,
-        picture: 'http://picture.com',
+        id: `${genId}`, 
+        username: `User-${genId}`,
+        picture: {thumbnail:'/user/3a31432c58b04007050e.jpg'},
 	      latitude: `-23.575${getRandomInt(000, 999)}`, 
 	      longitude: `-46.656${getRandomInt(000, 999)}`
       },
