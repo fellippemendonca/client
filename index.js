@@ -17,10 +17,9 @@ function carpetBombServer() {
   let userId = getRandomInt(0, 9999999999) ; // 5
 
   client.connect(PORT, HOST, function() {
-    //client.write(messageSample(userId, 'handshake'));
-    client.write(messageSample(userId, 'chat-in'));
-    client.write(messageSample(userId, 'chat-msg'));
-    //client.write(messageSample(userId, 'shake'));
+    //client.write(messageSample(userId, 'chat-in'));
+    //client.write(messageSample(userId, 'chat-msg'));
+    client.write(messageSample(userId, 'shake'));
   });
 
   setTimeout(() => {
@@ -53,7 +52,7 @@ function carpetBombServer() {
 }
 
 
-setInterval(() => { carpetBombServer(); },(3000));
+setInterval(() => { carpetBombServer(); },(1000));
 
 
 
@@ -63,8 +62,6 @@ function messageSample(num, eventType) {
     {
       event: eventType,
       auth: {
-        username: 'TimeHi',
-        secret: 'H2nhj675TyhkdghHbcfdku8195312mft',
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU'
       },
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
@@ -72,8 +69,8 @@ function messageSample(num, eventType) {
         id: `${genId}`, 
         username: `User-${genId}`,
         picture: {thumbnail:'/user/3a31432c58b04007050e.jpg'},
-	      latitude: `-23.575${getRandomInt(000, 999)}`, 
-	      longitude: `-46.656${getRandomInt(000, 999)}`
+	      latitude: `-23.5751${getRandomInt(00, 99)}`, 
+	      longitude: `-46.6569${getRandomInt(00, 99)}`
       },
       chatId: '34573465', //getRandomInt(0, 2), //'34573465',//
       message: `${loremIpsum({count: 1})} from User-${genId}`,
