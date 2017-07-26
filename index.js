@@ -17,13 +17,16 @@ function carpetBombServer() {
   let userId = getRandomInt(0, 9999999999) ; // 5
 
   client.connect(PORT, HOST, function() {
-    //client.write(messageSample(userId, 'chat-in'));
-    //client.write(messageSample(userId, 'chat-msg'));
-    client.write(messageSample(userId, 'shake'));
+    let spltMsg = messageSample(userId, 'shake');
+    //client.write(messageSample(userId, 'chat-in').full);
+    //client.write(messageSample(userId, 'chat-msg').full);
+    //client.write(messageSample(userId, 'shake').full);
+    setTimeout(() => {client.write(spltMsg.init) }, 1);
+    setTimeout(() => { client.write(spltMsg.end) }, 500);
   });
 
   setTimeout(() => {
-      //client.write(messageSample(userId, 'chat-out'));
+      //client.write(messageSample(userId, 'chat-out').full);
       client.destroy();
   }, 10000);
 
@@ -52,7 +55,7 @@ function carpetBombServer() {
 }
 
 
-setInterval(() => { carpetBombServer(); },(1000));
+setInterval(() => { carpetBombServer(); },(3000));
 
 
 
@@ -82,8 +85,13 @@ function messageSample(num, eventType) {
   }
   let stx = new Buffer ([0x02]);
   let etx = new Buffer ([0x03]);
+
   let stringBuffer = new Buffer.from(`${JSON.stringify(message)}`);
-  return Buffer.concat([stx, stringBuffer, etx]);
+
+  let halfStartBuffer = Buffer.concat([stx, new Buffer.from(stringBuffer.slice(0, 100))]);
+  let halfEndBuffer = Buffer.concat([new Buffer.from(stringBuffer.slice(100, stringBuffer.length)), etx]);
+  let entireBuffer = Buffer.concat([stx, stringBuffer, etx]);
+  return {init: halfStartBuffer, end: halfEndBuffer, full: entireBuffer};
 };
 
 //-23.575123, -46.656920
@@ -303,8 +311,8 @@ const Chats = sequelize.define('chats', {
     description: {
         type: Sequelize.STRING
     },
-    imageUrl: {
-        type: Sequelize.STRING, field: 'image_url'
+    image: {
+        type: Sequelize.STRING
     },
     public: {
         type: Sequelize.INTEGER
@@ -358,12 +366,12 @@ ChatsMembers.find({
   include: [
     {
       model: Chats,
-      attributes: ['name', 'description', ['image_url','imageUrl'], 'public']
+      attributes: ['name', 'description', 'image', 'public']
     }
   ]
 })
 .then((results) => {
-    //console.log(results.dataValues );
+    console.log(results.dataValues );
 
     //console.log(results.chat.dataValues);
   });
