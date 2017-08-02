@@ -1,4 +1,6 @@
 var net = require('net');
+var request = require('request');
+const Promise = require('bluebird');
 var loremIpsum = require('lorem-ipsum');
 var output = loremIpsum();
 
@@ -8,7 +10,11 @@ const Mysql = db().mysql;
 
 
 
-var HOST =  'localhost';// '192.168.1.66'// '' chat-stage.timehi.com;
+
+
+//chat-stage.timehi.com/v1
+
+var HOST =  'localhost'; // '192.168.1.66'// '' chat-stage.timehi.com;
 var PORT = 5333;
 
 function carpetBombServer() {
@@ -21,14 +27,14 @@ function carpetBombServer() {
     //client.write(messageSample(userId, 'chat-in').full);
     //client.write(messageSample(userId, 'chat-msg').full);
     //client.write(messageSample(userId, 'shake').full);
-    setTimeout(() => {client.write(spltMsg.init) }, 1);
-    setTimeout(() => { client.write(spltMsg.end) }, 500);
+    setTimeout(() => { client.write(spltMsg.init) }, 1);
+    setTimeout(() => { client.write(spltMsg.end) }, 10);
   });
 
   setTimeout(() => {
       //client.write(messageSample(userId, 'chat-out').full);
       client.destroy();
-  }, 10000);
+  }, 90000);
 
   client.on('connect', function(data) {
     console.log(`userId: ${userId}, 'event': 'connect'`);
@@ -55,8 +61,17 @@ function carpetBombServer() {
 }
 
 
-setInterval(() => { carpetBombServer(); },(3000));
+clientsInit(3000);
 
+function clientsInit(max) {
+  if(max > 100) {
+    setInterval(() => { carpetBombServer(); }, max);
+  } else {
+    for (let i = 0; i < max; i++) {
+      carpetBombServer();
+    }
+  }
+}
 
 
 function messageSample(num, eventType) {
@@ -64,15 +79,13 @@ function messageSample(num, eventType) {
   var message = 
     {
       event: eventType,
-      auth: {
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU'
-      },
+      token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU',
       id: JSON.stringify(getRandomInt(10000000, 100000000)),
-      user: { 
-        id: `${genId}`, 
+      user: {
+        id: genId, 
         username: `User-${genId}`,
         picture: {thumbnail:'/user/3a31432c58b04007050e.jpg'},
-	      latitude: `-23.5751${getRandomInt(00, 99)}`, 
+	      latitude: `-23.5753${getRandomInt(00, 99)}`, 
 	      longitude: `-46.6569${getRandomInt(00, 99)}`
       },
       chatId: '34573465', //getRandomInt(0, 2), //'34573465',//
@@ -94,6 +107,9 @@ function messageSample(num, eventType) {
   return {init: halfStartBuffer, end: halfEndBuffer, full: entireBuffer};
 };
 
+
+latitude = "-23.57537971814839";
+    longitude = "-46.65694820579125";
 //-23.575123, -46.656920
 //-23.575064, -46.656861
 
@@ -105,40 +121,31 @@ function getRandomInt(min, max) {
 }
 
 /*
+server {
 
-{
-      "chatId": "34573465",
-      "id": "34532367",
-      "event": "chat",
-      "media": {
-        "type": "picture",
-        "path": "http:\/\/youtube.com"
-      },
-      "message": "HI from Hell",
-      "createdAt": "2017-07-12T15:32:07.675Z",
-      "user": {
-        "id": "5873ca0d80804e000qweqwe15ab3f8",
-        "username": "Robot",
-        "picture": {
-          "thumbnail": "\/user\/3a31432c58b04007050e.jpg"
+        listen 8331;
+
+        index index.html index.htm index.nginx-debian.html;
+        server_name timehi-api;
+
+        location / {
+                proxy_pass http://localhost:5331;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
         }
-      }
+}
+
+stream {
+    server {
+        listen     5333;
+        proxy_pass 127.0.0.1:5333;
     }
+}
 
 
-
-{
-    event: 'chat',
-    id: '123124124', // getRandomInt(10000000, 100000000),
-    user: { id: genId, name: `User-${genId}`},
-    chatId: '34573465',//getRandomInt(0, 3),
-    message: `Test message text from User-${genId}`,
-    media: {
-      type: 'video/picture',
-      path: 'http://youtube.com'
-    },
-    createdAt: new Date()
-  }
 
 */
 
@@ -357,7 +364,7 @@ ChatsMembers.belongsTo(Chats);
 
 
 
-///*
+/*
 
 //sequelize.sync().then(() => {});
 ChatsMembers.find({
@@ -371,7 +378,7 @@ ChatsMembers.find({
   ]
 })
 .then((results) => {
-    console.log(results.dataValues );
+    //console.log(results.dataValues );
 
     //console.log(results.chat.dataValues);
   });
@@ -383,3 +390,44 @@ ChatsMembers.find({
   //console.log(metadata);
   // Results will be an empty array and metadata will contain the number of affected rows.
 //});
+
+
+let restClient = new RestClient();
+
+restClient.get('http://192.168.1.66:8331/v1/user/6/following/2')
+.then(res => {
+  console.log(res);
+})
+
+*/
+
+function RestClient() {
+
+  this.get = (url) => {
+      return new Promise((resolve, reject) => {
+      let options = {
+        method: 'GET',
+        url: url,
+        headers: {
+          'content-type': 'application/json',
+          Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJicnVyZW5kIiwibmFtZSI6IkJydW5vIiwiZW1haWwiOiJicnVub3JlbmRlaXJvQGtpZGRvbGFicy5jb20iLCJiaW8iOiJIdHRwOi8vTWFja2VuemllLmJyIiwicHJpdmFjeSI6InByaXZhdGUiLCJ1c2VyQ291bnRzIjp7Im5vdGlmaWNhdGlvbnMiOjUxLCJmb2xsb3dpbmciOjEwLCJmb2xsb3dlcnMiOjQsInBvc3RzIjo1M30sInVzZXJOb3RpZmljYXRpb25zIjp7Im1lbnRpb25zX3Bvc3QiOiJvbiIsIm1lbnRpb25zX2NvbW1lbnQiOiJvbiIsIm1hcmtfcG9zdCI6Im9uIiwiY2hhdCI6Im9uIiwiZm9sbG93X3JlcXVlc3QiOiJvbiIsImZvbGxvdyI6Im9uIiwiY29tbWVudCI6Im9uIiwibGlrZXMiOiJhbGwifSwicGljdHVyZSI6W3sibmFtZSI6IjU4YTc3MWJjYjVmMzRiMDAwMTM5MzlhYyIsInBpY3R1cmUiOiJvcmlnaW5hbCIsImZvcm1hdCI6IkpQRUciLCJ1cmwiOiJodHRwczovL3RpbWVoaS5zMy1zYS1lYXN0LTEuYW1hem9uYXdzLmNvbS91c2VyLzk2YjZmODIzZjNkOWUxOGEwMWUyLmpwZyJ9LHsibmFtZSI6IjU4YTc3MWJjYjVmMzRiMDAwMTM5MzlhYyIsInBpY3R1cmUiOiJ0aHVtYm5haWwiLCJmb3JtYXQiOiJKUEVHIiwidXJsIjoiaHR0cHM6Ly90aW1laGkuczMtc2EtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXNlci85OTgxYTUzZTBiNzVkODkyZDA5My5qcGcifV0sImNvdmVyUGljdHVyZSI6eyJuYW1lIjoiNThhNzcxYzRiNWYzNGIwMDAxMzkzOWFkIiwicGljdHVyZSI6InRodW1ibmFpbCIsImZvcm1hdCI6IkpQRUciLCJ1cmwiOiJodHRwczovL3RpbWVoaS5zMy1zYS1lYXN0LTEuYW1hem9uYXdzLmNvbS91c2VyLzU0ZTE4ODJlZDE3MTQxZWVmZjdkLmpwZyJ9fQ.36ac190q7OkNpqMo8M3-MNkIataOEVMeF3RnHwUjqP0'
+        }
+      }
+
+      request(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          resolve({
+            status: response.statusCode,
+            body: JSON.parse(body)
+          }) 
+        } else {
+          resolve({
+            status: response.statusCode,
+            body: {}
+          })
+        }
+      });
+    })
+  }
+  
+}
