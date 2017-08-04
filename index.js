@@ -20,19 +20,19 @@ var PORT = 5333;
 function carpetBombServer() {
   let client = new net.Socket();
   client.setNoDelay(true);
-  let userId = getRandomInt(0, 9999999999) ; // 5
+  let userId = getRandomInt(0, 5) ; // 5
 
   client.connect(PORT, HOST, function() {
     let spltMsg = messageSample(userId, 'shake');
-    //client.write(messageSample(userId, 'chat-in').full);
-    //client.write(messageSample(userId, 'chat-msg').full);
+    client.write(messageSample(userId, 'chat-in').full);
+    client.write(messageSample(userId, 'chat-msg').full);
     //client.write(messageSample(userId, 'shake').full);
-    setTimeout(() => { client.write(spltMsg.init) }, 1);
-    setTimeout(() => { client.write(spltMsg.end) }, 10);
+    //setTimeout(() => { client.write(spltMsg.init) }, 1);
+    //setTimeout(() => { client.write(spltMsg.end) }, 10);
   });
 
   setTimeout(() => {
-      //client.write(messageSample(userId, 'chat-out').full);
+      client.write(messageSample(userId, 'chat-out').full);
       client.destroy();
   }, 90000);
 
@@ -61,7 +61,7 @@ function carpetBombServer() {
 }
 
 
-clientsInit(3000);
+//clientsInit(3000);
 
 function clientsInit(max) {
   if(max > 100) {
@@ -93,9 +93,9 @@ function messageSample(num, eventType) {
       media: {
         type: 'video/picture',
         path: 'http://youtube.com'
-    },
-    createdAt: JSON.stringify(new Date())
-  }
+      },
+      createdAt: JSON.stringify(new Date())
+    }
   let stx = new Buffer ([0x02]);
   let etx = new Buffer ([0x03]);
 
@@ -346,8 +346,8 @@ const ChatsMembers = sequelize.define('chats_members', {
     userId: {
       type: Sequelize.INTEGER, field: 'user_id'
     },
-    offset: {
-      type: Sequelize.INTEGER
+    lastRead: {
+      type: Sequelize.INTEGER, field: 'last_read'
     },
     muted: {
       type: Sequelize.INTEGER
@@ -356,6 +356,7 @@ const ChatsMembers = sequelize.define('chats_members', {
       type: Sequelize.INTEGER
     }
   }
+
 );
 
 
@@ -363,13 +364,12 @@ Chats.hasMany(ChatsMembers);
 ChatsMembers.belongsTo(Chats);
 
 
-
-/*
+///*
 
 //sequelize.sync().then(() => {});
 ChatsMembers.find({
   where: {USER_ID: 2},
-  attributes: [['chat_id', 'chatId'], 'offset', 'muted', 'admin'],
+  attributes: [['chat_id', 'chatId'], ['last_read', 'lastRead'], 'muted', 'admin'],
   include: [
     {
       model: Chats,
@@ -378,7 +378,7 @@ ChatsMembers.find({
   ]
 })
 .then((results) => {
-    //console.log(results.dataValues );
+    console.log(results.dataValues.chat.dataValues);
 
     //console.log(results.chat.dataValues);
   });
@@ -391,7 +391,7 @@ ChatsMembers.find({
   // Results will be an empty array and metadata will contain the number of affected rows.
 //});
 
-
+/*
 let restClient = new RestClient();
 
 restClient.get('http://192.168.1.66:8331/v1/user/6/following/2')
@@ -399,7 +399,7 @@ restClient.get('http://192.168.1.66:8331/v1/user/6/following/2')
   console.log(res);
 })
 
-*/
+//*/
 
 function RestClient() {
 
