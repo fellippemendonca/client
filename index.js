@@ -7,23 +7,28 @@ var output = loremIpsum();
 const db = require('./lib/db');
 const Mysql = db().mysql;
 
+const earth = {
+  horizontalRadius: 6371,
+  verticalRadius: 6356.8
+}
 
+const pi = 3.14159265358979;
 
 
 
 
 //chat-stage.timehi.com/v1
 
-var HOST =  'localhost'; // '192.168.1.66'// '' chat-stage.timehi.com;
+var HOST =  '192.168.1.66'; // '192.168.1.66'// '' chat-stage.timehi.com;
 var PORT = 5333;
 
 function carpetBombServer() {
   let client = new net.Socket();
   client.setNoDelay(true);
-  let userId = getRandomInt(0, 5) ; // 5
+  let userId = 2;//getRandomInt(1, 20) ; // 5
 
   client.connect(PORT, HOST, function() {
-    let spltMsg = messageSample(userId, 'shake');
+    //let spltMsg = messageSample(userId, 'shake');
     client.write(messageSample(userId, 'chat-in').full);
     client.write(messageSample(userId, 'chat-msg').full);
     //client.write(messageSample(userId, 'shake').full);
@@ -34,7 +39,7 @@ function carpetBombServer() {
   setTimeout(() => {
       client.write(messageSample(userId, 'chat-out').full);
       client.destroy();
-  }, 90000);
+  }, 1000);
 
   client.on('connect', function(data) {
     console.log(`userId: ${userId}, 'event': 'connect'`);
@@ -61,7 +66,7 @@ function carpetBombServer() {
 }
 
 
-//clientsInit(3000);
+clientsInit(1);
 
 function clientsInit(max) {
   if(max > 100) {
@@ -77,25 +82,37 @@ function clientsInit(max) {
 function messageSample(num, eventType) {
   let genId = num;
   var message = 
+  /*{
+      "chatId": 34573465,
+      "event": "chat-msg",
+      "message": "Bjhhj",
+      "type": "teste",
+      "createdAt": "2017-08-09T19:18:42.949Z",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU",
+      "user": {
+        "id": 2,
+        "username": "brurend",
+        "picture": {
+          "thumbnail": "/user/9981a53e0b75d892d093.jpg"
+        }
+      }
+    }
+    */
     {
       event: eventType,
       token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU',
-      id: JSON.stringify(getRandomInt(10000000, 100000000)),
-      user: {
+      author: {
         id: genId, 
         username: `User-${genId}`,
-        picture: {thumbnail:'/user/3a31432c58b04007050e.jpg'},
-	      latitude: `-23.5753${getRandomInt(00, 99)}`, 
-	      longitude: `-46.6569${getRandomInt(00, 99)}`
+        picture: {thumbnail:'/user/3a31432c58b04007050e.jpg'}//,
+	      //latitude: `-23.5753${getRandomInt(00, 99)}`, 
+	      //longitude: `-46.6569${getRandomInt(00, 99)}`
       },
-      chatId: '34573465', //getRandomInt(0, 2), //'34573465',//
-      message: `${loremIpsum({count: 1})} from User-${genId}`,
-      media: {
-        type: 'video/picture',
-        path: 'http://youtube.com'
-      },
-      createdAt: JSON.stringify(new Date())
+      id: 34573465, //getRandomInt(0, 2), //'34573465',//
+      text: 'Gosto de meninos e meninas',//`${loremIpsum({count: 1})} from User-${genId}`,
+      type: 'text'
     }
+    
   let stx = new Buffer ([0x02]);
   let etx = new Buffer ([0x03]);
 
@@ -108,8 +125,8 @@ function messageSample(num, eventType) {
 };
 
 
-latitude = "-23.57537971814839";
-    longitude = "-46.65694820579125";
+//latitude = "-23.57537971814839";
+//    longitude = "-46.65694820579125";
 //-23.575123, -46.656920
 //-23.575064, -46.656861
 
@@ -378,7 +395,7 @@ ChatsMembers.find({
   ]
 })
 .then((results) => {
-    console.log(results.dataValues.chat.dataValues);
+    //console.log(results.dataValues.chat.dataValues);
 
     //console.log(results.chat.dataValues);
   });
@@ -430,4 +447,46 @@ function RestClient() {
     })
   }
   
+}
+
+
+
+let coord1 = {
+  latitude:-23.57543134427412,
+  longitude:-46.6568561758816
+}
+
+
+let coord2 = {
+  latitude:-23.57537546197285,
+  longitude:-46.65683520962173
+}
+
+console.log(distance(coord1, coord2));
+
+function distance(coord1, coord2) {
+    let vDist = verticalDistance(coord1.latitude, coord2.latitude);
+    let hDist = horizontalDistance(coord1.longitude, coord2.longitude);
+
+    // Diagonal of Rectangle ==> A² + B² = C²
+    let fDist = Math.sqrt((vDist*vDist) + (hDist*hDist));
+    return Number((fDist*1000).toFixed(1)) ; // Km to Mts
+  }
+
+
+
+function verticalDistance(lat1, lat2) {
+  let diff = Math.abs(lat1-lat2);
+  // Earth Perimeter = 2*Pi*R
+  let ePeriMtr = 2*pi*earth.verticalRadius;
+  // Diff Perimeter
+  return (diff*ePeriMtr)/360;
+}
+
+function horizontalDistance(lon1, lon2) {
+  let diff = Math.abs(lon1-lon2);
+  // Earth Perimeter = 2*Pi*R
+  let ePeriMtr = 2*pi*earth.horizontalRadius;
+  // Diff Perimeter
+  return (diff*ePeriMtr)/360;
 }
