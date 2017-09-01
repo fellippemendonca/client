@@ -3,12 +3,14 @@ const Promise = require('bluebird');
 const loremIpsum = require('lorem-ipsum');
 const output = loremIpsum();
 const RestClient = require('./lib/RestClient');
+const bufferizer = require('./lib/bufferizer');
+const distMeter = require('./lib/distMeter');
+const defaultTkn = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU';
 
-const earth = {
-  horizontalRadius: 6371,
-  verticalRadius: 6356.8
-}
-const pi = 3.14159265358979;
+let coord1 = { latitude:-23.57543134427412, longitude:-46.6568561758816 }
+let coord2 = { latitude:-23.57537546197285, longitude:-46.65683520962173 }
+
+//console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 
 const environment = {
   token: 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJicnVyZW5kIiwibmFtZSI6IkJydW5vIiwiZW1haWwiOiJicnVub3JlbmRlaXJvQGtpZGRvbGFicy5jb20iLCJiaW8iOiJIdHRwOi8vTWFja2VuemllLmJyIiwicHJpdmFjeSI6InByaXZhdGUiLCJ1c2VyQ291bnRzIjp7Im5vdGlmaWNhdGlvbnMiOjUxLCJmb2xsb3dpbmciOjEwLCJmb2xsb3dlcnMiOjQsInBvc3RzIjo1M30sInVzZXJOb3RpZmljYXRpb25zIjp7Im1lbnRpb25zX3Bvc3QiOiJvbiIsIm1lbnRpb25zX2NvbW1lbnQiOiJvbiIsIm1hcmtfcG9zdCI6Im9uIiwiY2hhdCI6Im9uIiwiZm9sbG93X3JlcXVlc3QiOiJvbiIsImZvbGxvdyI6Im9uIiwiY29tbWVudCI6Im9uIiwibGlrZXMiOiJhbGwifSwicGljdHVyZSI6W3sibmFtZSI6IjU4YTc3MWJjYjVmMzRiMDAwMTM5MzlhYyIsInBpY3R1cmUiOiJvcmlnaW5hbCIsImZvcm1hdCI6IkpQRUciLCJ1cmwiOiJodHRwczovL3RpbWVoaS5zMy1zYS1lYXN0LTEuYW1hem9uYXdzLmNvbS91c2VyLzk2YjZmODIzZjNkOWUxOGEwMWUyLmpwZyJ9LHsibmFtZSI6IjU4YTc3MWJjYjVmMzRiMDAwMTM5MzlhYyIsInBpY3R1cmUiOiJ0aHVtYm5haWwiLCJmb3JtYXQiOiJKUEVHIiwidXJsIjoiaHR0cHM6Ly90aW1laGkuczMtc2EtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXNlci85OTgxYTUzZTBiNzVkODkyZDA5My5qcGcifV0sImNvdmVyUGljdHVyZSI6eyJuYW1lIjoiNThhNzcxYzRiNWYzNGIwMDAxMzkzOWFkIiwicGljdHVyZSI6InRodW1ibmFpbCIsImZvcm1hdCI6IkpQRUciLCJ1cmwiOiJodHRwczovL3RpbWVoaS5zMy1zYS1lYXN0LTEuYW1hem9uYXdzLmNvbS91c2VyLzU0ZTE4ODJlZDE3MTQxZWVmZjdkLmpwZyJ9fQ.36ac190q7OkNpqMo8M3-MNkIataOEVMeF3RnHwUjqP0',
@@ -31,6 +33,7 @@ const environment = {
 
 }
 
+
 let restClient = new RestClient(environment);
 
 //restClient.get('/v1/chat?type=GROUP').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
@@ -40,35 +43,42 @@ let restClient = new RestClient(environment);
 //carpetBombServer(environment.socket2);
 
 
-clientsInit(2);
+clientsInit(1, environment.socket2);
 
-function clientsInit(max) {
+
+function clientsInit(max, socket) {
   if(max > 100) {
-    setInterval(() => { carpetBombServer(environment.socket) }, max);
+    setInterval(() => { carpetBombServer(socket) }, max);
   } else {
     for (let i = 0; i < max; i++) {
-      carpetBombServer(environment.socket);
+      carpetBombServer(socket);
     }
   }
 }
 
 function carpetBombServer(socket) {
   let client = new net.Socket();
-  let userId = getRandomInt(2, 9) ; // 5
+  let userId = 2 //getRandomInt(2, 10) ; // 5
 
   client.connect(socket.port, socket.host, () => {
     //let spltMsg = messageSample(userId, 'shake');
-    client.write(messageSample(userId, 'chat-in').full);
-    setTimeout(() => { client.write(messageSample(userId, 'chat-msg').full) }, 1000);
-    //client.write(messageSample(userId, 'shake').full);
+    //client.write(messageSample(userId, 'chat-in').full);
+    setTimeout(() => { client.write(messageSample(userId, 'chat-msg').full) }, 100);
+    //client.write(shake(userId).full);
+    //client.write(keepAlive().full);
+    
+    //client.write(chatKick(userId).full); 
+    //client.write(chatAdd(userId).full);
+    //client.write(messageSample(userId, 'chat-msg').full);
+    //setInterval(() => { client.write(messageSample2(userId, 'keep-alive').full) }, 3000);
     //setTimeout(() => { client.write(spltMsg.init) }, 1);
-    //setTimeout(() => { client.write(spltMsg.end) }, 10);
+    //setTimeout(() => { client.write(spltMsg.end) }, 100);
   });
 
   setTimeout(() => {
-      client.write(messageSample(userId, 'chat-out').full);
+      //client.write(messageSample(userId, 'chat-out').full);
       client.destroy();
-  }, 3000);
+  }, 5000);
 
   client.on('connect', function(data) {
     console.log(`userId: ${userId}, 'event': 'connect'`);
@@ -102,30 +112,80 @@ function messageSample(num, eventType) {
   let genId = num;
   var message = {
     event: eventType,
-    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU',
+    token: defaultTkn,
     author: {
       id: genId,
-      username: `User-${genId}`,
-      picture: {thumbnail:'/user/3a31432c58b04007050e.jpg'},
-      latitude: `-23.5753${getRandomInt(00, 99)}`, 
-      longitude: `-46.6569${getRandomInt(00, 99)}`
+      name: `User-${genId}`
     },
     id: 34573465,
-    text: 'Gosto de caldo de cana',//`${loremIpsum({count: 1})} from User-${genId}`,
+    text: 'Foi culpa do Powerpoint', //`${loremIpsum({count: 1})} from User-${genId}`,
     type: 'text',
-    mediaUrl: 'www.brunoVidaLoka.com/bikeRadical.jpg'
+    mediaUrl: 'http://mediaUrl.jpg'
   }
 
-  let stx = new Buffer ([0x02]);
-  let etx = new Buffer ([0x03]);
-
-  let stringBuffer = new Buffer.from(`${JSON.stringify(message)}`);
-
-  let halfStartBuffer = Buffer.concat([stx, new Buffer.from(stringBuffer.slice(0, 100))]);
-  let halfEndBuffer = Buffer.concat([new Buffer.from(stringBuffer.slice(100, stringBuffer.length)), etx]);
-  let entireBuffer = Buffer.concat([stx, stringBuffer, etx]);
-  return {init: halfStartBuffer, end: halfEndBuffer, full: entireBuffer};
+  return bufferizer(message);
 };
+
+function chatAdd(num) {
+  let genId = num;
+  var message = {
+    event: 'chat-add',
+    id: 34573465,
+    token: defaultTkn,
+    author: {
+      id: genId,
+      name: `User-${genId}`
+    },
+    text: `user Leo added to chat`,
+    type: 'text',
+    target: {id: 7, name: 'Leo'}
+  }
+  return bufferizer(message);
+};
+
+function chatKick(num) {
+  let genId = num;
+  var message = {
+    event: 'chat-kick',
+    id: 34573465,
+    token: defaultTkn,
+    author: {
+      id: genId,
+      name: `User-${genId}`
+    },
+    text: `user Leo removed from chat`,
+    type: 'text',
+    target: {id: 7, name: 'Leo'}
+  }
+  return bufferizer(message);
+};
+
+function shake(num) {
+  let genId = num;
+  var message = {
+    event: 'shake',
+    token: defaultTkn,
+    author: {
+      id: genId,
+      name: `User-${genId}`,
+      latitude: parseFloat(`-23.5753${getRandomInt(00, 99)}`), 
+      longitude: parseFloat(`-46.6569${getRandomInt(00, 99)}`)
+    }
+  }
+  return bufferizer(message);
+};
+
+function keepAlive() {
+  var message = {
+    event: 'keep-alive'
+  }
+  return bufferizer(message);
+};
+
+
+
+
+
 
 
 // HELPERS
@@ -137,43 +197,17 @@ function getRandomInt(min, max) {
 
 
 
+/*
 
-let coord1 = {
-  latitude:-23.57543134427412,
-  longitude:-46.6568561758816
-}
-
-
-let coord2 = {
-  latitude:-23.57537546197285,
-  longitude:-46.65683520962173
-}
-
-//console.log(distance(coord1, coord2));
-
-function distance(coord1, coord2) {
-    let vDist = verticalDistance(coord1.latitude, coord2.latitude);
-    let hDist = horizontalDistance(coord1.longitude, coord2.longitude);
-
-    // Diagonal of Rectangle ==> A² + B² = C²
-    let fDist = Math.sqrt((vDist*vDist) + (hDist*hDist));
-    return Number((fDist*1000).toFixed(1)) ; // Km to Mts
-  }
+db.getCollection('messages').find({ 
+    'chatId': 34573465, 
+    'author.id': {'$ne': 2} , 
+    'system': null, 
+    '$or': [
+        {'createdAt': {'$gt': ISODate("2017-08-10T19:40:10.055Z")}}, 
+        {'createdAt': {'$lt': 'createdAt' }}
+    ]
+    })
 
 
-
-function verticalDistance(lat1, lat2) {
-  let diff = Math.abs(lat1-lat2);
-  // Earth Perimeter = 2*Pi*R
-  let ePeriMtr = 2*pi*earth.verticalRadius;
-  // Diff Perimeter
-  return (diff*ePeriMtr)/360;
-}
-
-function horizontalDistance(lon1, lon2) {
-  let diff = Math.abs(lon1-lon2);
-  // Earth Perimeter = 2*Pi*R
-  let ePeriMtr = 2*pi*earth.horizontalRadius;
-  // Diff Perimeter
-  return (diff*ePeriMtr)/360;
-}
+*/
