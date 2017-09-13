@@ -7,6 +7,8 @@ const bufferizer = require('./lib/bufferizer');
 const distMeter = require('./lib/distMeter');
 const defaultTkn = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU';
 
+//"latitude":-23.576252,"longitude":-46.65455
+
 let coord1 = { latitude:-23.57543134427412, longitude:-46.6568561758816 }
 let coord2 = { latitude:-23.57537546197285, longitude:-46.65683520962173 }
 
@@ -43,7 +45,7 @@ let restClient = new RestClient(environment);
 //carpetBombServer(environment.socket2);
 
 
-clientsInit(1, environment.socket2);
+clientsInit(2, environment.socket2);
 
 
 function clientsInit(max, socket) {
@@ -58,13 +60,13 @@ function clientsInit(max, socket) {
 
 function carpetBombServer(socket) {
   let client = new net.Socket();
-  let userId = 2 //getRandomInt(2, 10) ; // 5
+  let userId = getRandomInt(2, 10) ; // 5
 
   client.connect(socket.port, socket.host, () => {
     //let spltMsg = messageSample(userId, 'shake');
     //client.write(messageSample(userId, 'chat-in').full);
-    setTimeout(() => { client.write(messageSample(userId, 'chat-msg').full) }, 100);
-    //client.write(shake(userId).full);
+    //setTimeout(() => { client.write(messageSample(userId, 'chat-msg').full) }, 100);
+    client.write(shake(userId).full);
     //client.write(keepAlive().full);
     
     //client.write(chatKick(userId).full); 
@@ -168,10 +170,14 @@ function shake(num) {
     author: {
       id: genId,
       name: `User-${genId}`,
+      picture: {
+        url: 'www.url.com'
+      },
       latitude: parseFloat(`-23.5753${getRandomInt(00, 99)}`), 
       longitude: parseFloat(`-46.6569${getRandomInt(00, 99)}`)
     }
   }
+  
   return bufferizer(message);
 };
 
@@ -181,10 +187,6 @@ function keepAlive() {
   }
   return bufferizer(message);
 };
-
-
-
-
 
 
 
@@ -199,15 +201,50 @@ function getRandomInt(min, max) {
 
 /*
 
-db.getCollection('messages').find({ 
-    'chatId': 34573465, 
-    'author.id': {'$ne': 2} , 
-    'system': null, 
-    '$or': [
-        {'createdAt': {'$gt': ISODate("2017-08-10T19:40:10.055Z")}}, 
-        {'createdAt': {'$lt': 'createdAt' }}
-    ]
-    })
+@createdAtTimestamp date
+author_id long
+author_name text
+chatId long
+createdAt text
+deletedAt text
+mongo_id text
+reports text
+text text
+type text
+updatedAt text
+
+// -- Mongo Model -- 
+{
+  chatId: { type: Number, required: true },
+  author: {
+    id: { type: Number, required: true },
+    name: { type: String, required: true }
+  },
+  type: { type: String, enum: ['text', 'picture', 'video', 'system'], default: 'text' },
+  mediaUrl: { type: String },
+  text: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  system: {
+    type: { type: String, enum: systemMessageTypes },
+    value: { type: Object }
+  }
+}
+
+
+
+@createdAtTimestamp date
+chatId long
+author_id long
+author_name text
+type text
+mediaUrl text
+text text
+system_type text
+system_value text
+createdAt text
+deletedAt text
+updatedAt text
+
 
 
 */
