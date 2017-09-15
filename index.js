@@ -5,7 +5,7 @@ const output = loremIpsum();
 const RestClient = require('./lib/RestClient');
 const bufferizer = require('./lib/bufferizer');
 const distMeter = require('./lib/distMeter');
-const defaultTkn = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlRpbWVIaSIsImlhdCI6MTQ5MjUzNjc2MX0.BERAjBsqiODSMmFfHGf8_bQ1ZOrC2SIj01KOVPFJHNU';
+const environment = require('./lib/environment');
 
 //"latitude":-23.576252,"longitude":-46.65455
 
@@ -14,26 +14,6 @@ let coord2 = { latitude:-23.57537546197285, longitude:-46.65683520962173 }
 
 //console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 
-const environment = {
-  token: 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6MiwidXNlcm5hbWUiOiJicnVyZW5kIiwibmFtZSI6IkJydW5vIiwiZW1haWwiOiJicnVub3JlbmRlaXJvQGtpZGRvbGFicy5jb20iLCJiaW8iOiJIdHRwOi8vTWFja2VuemllLmJyIiwicHJpdmFjeSI6InByaXZhdGUiLCJ1c2VyQ291bnRzIjp7Im5vdGlmaWNhdGlvbnMiOjUxLCJmb2xsb3dpbmciOjEwLCJmb2xsb3dlcnMiOjQsInBvc3RzIjo1M30sInVzZXJOb3RpZmljYXRpb25zIjp7Im1lbnRpb25zX3Bvc3QiOiJvbiIsIm1lbnRpb25zX2NvbW1lbnQiOiJvbiIsIm1hcmtfcG9zdCI6Im9uIiwiY2hhdCI6Im9uIiwiZm9sbG93X3JlcXVlc3QiOiJvbiIsImZvbGxvdyI6Im9uIiwiY29tbWVudCI6Im9uIiwibGlrZXMiOiJhbGwifSwicGljdHVyZSI6W3sibmFtZSI6IjU4YTc3MWJjYjVmMzRiMDAwMTM5MzlhYyIsInBpY3R1cmUiOiJvcmlnaW5hbCIsImZvcm1hdCI6IkpQRUciLCJ1cmwiOiJodHRwczovL3RpbWVoaS5zMy1zYS1lYXN0LTEuYW1hem9uYXdzLmNvbS91c2VyLzk2YjZmODIzZjNkOWUxOGEwMWUyLmpwZyJ9LHsibmFtZSI6IjU4YTc3MWJjYjVmMzRiMDAwMTM5MzlhYyIsInBpY3R1cmUiOiJ0aHVtYm5haWwiLCJmb3JtYXQiOiJKUEVHIiwidXJsIjoiaHR0cHM6Ly90aW1laGkuczMtc2EtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXNlci85OTgxYTUzZTBiNzVkODkyZDA5My5qcGcifV0sImNvdmVyUGljdHVyZSI6eyJuYW1lIjoiNThhNzcxYzRiNWYzNGIwMDAxMzkzOWFkIiwicGljdHVyZSI6InRodW1ibmFpbCIsImZvcm1hdCI6IkpQRUciLCJ1cmwiOiJodHRwczovL3RpbWVoaS5zMy1zYS1lYXN0LTEuYW1hem9uYXdzLmNvbS91c2VyLzU0ZTE4ODJlZDE3MTQxZWVmZjdkLmpwZyJ9fQ.36ac190q7OkNpqMo8M3-MNkIataOEVMeF3RnHwUjqP0',
-  server: {
-    host: 'localhost',
-    port: 5331
-  },
-  server2: {
-    host: 'chat-stage.timehi.com',
-    port: 80
-  },
-  socket: {
-    host: 'localhost',
-    port: 5333
-  },
-  socket2: {
-    host: 'chat-stage.timehi.com',
-    port: 5333
-  }
-
-}
 
 
 let restClient = new RestClient(environment);
@@ -57,6 +37,9 @@ function clientsInit(max, socket) {
     }
   }
 }
+
+console.log(new Date(1511111119999));
+
 
 function carpetBombServer(socket) {
   let client = new net.Socket();
@@ -114,14 +97,16 @@ function messageSample(num, eventType) {
   let genId = num;
   var message = {
     event: eventType,
-    token: defaultTkn,
+    token: environment.defaultTkn,
     author: {
       id: genId,
       name: `User-${genId}`
     },
     id: 34573465,
-    text: 'Foi culpa do Powerpoint', //`${loremIpsum({count: 1})} from User-${genId}`,
+    text: `${loremIpsum({count: 1})} from User-${genId}`,
     type: 'text',
+    //eventDate: new Date(1511111119999),
+    //expireDate: new Date(1511111119999),
     mediaUrl: 'http://mediaUrl.jpg'
   }
 
@@ -133,7 +118,7 @@ function chatAdd(num) {
   var message = {
     event: 'chat-add',
     id: 34573465,
-    token: defaultTkn,
+    token: environment.defaultTkn,
     author: {
       id: genId,
       name: `User-${genId}`
@@ -150,7 +135,7 @@ function chatKick(num) {
   var message = {
     event: 'chat-kick',
     id: 34573465,
-    token: defaultTkn,
+    token: environment.defaultTkn,
     author: {
       id: genId,
       name: `User-${genId}`
@@ -166,7 +151,7 @@ function shake(num) {
   let genId = num;
   var message = {
     event: 'shake',
-    token: defaultTkn,
+    token: environment.defaultTkn,
     author: {
       id: genId,
       name: `User-${genId}`,
@@ -200,6 +185,14 @@ function getRandomInt(min, max) {
 
 
 /*
+> use timehi
+switched to db timehi
+> db.messages.find({chatId: 34573465}).sort({createdAt:-1}).skip(0).limit(2).pretty()
+
+db.messages.find({ chatId: 34573465, $and: [ {createdAt: {$lt: new Date()}} ] }).sort({createdAt:-1}).pretty()
+
+db.messages.find({ chatId: 34573465, createdAt: {$lt: new Date()} }).sort({createdAt:-1}).pretty()
+
 
 @createdAtTimestamp date
 author_id long
