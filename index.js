@@ -98,16 +98,17 @@ function messageSample(num, eventType) {
   var message = {
     event: eventType,
     token: environment.defaultTkn,
+    id: 34573465,
     author: {
       id: genId,
       name: `User-${genId}`
     },
-    id: 34573465,
     text: `${loremIpsum({count: 1})} from User-${genId}`,
     type: 'text',
-    //eventDate: new Date(1511111119999),
-    //expireDate: new Date(1511111119999),
+    expireTime: 30,
     mediaUrl: 'http://mediaUrl.jpg'
+    //eventDate: new Date(1511111119999),
+    //,system: { type: "chat.edit.system.newUser", value: "Bruneras" },
   }
 
   return bufferizer(message);
@@ -237,6 +238,38 @@ system_value text
 createdAt text
 deletedAt text
 updatedAt text
+
+
+
+
+{
+  "author": {
+  	"id": 2,
+    "name": "Bruno"
+  },
+  "type": "text",
+  "mediaUrl": "www.brunoVidaLoka.com/bikeRadical.jpg",
+  "text": "test",
+  eventDate: '2017-09-18T17:00:14.447Z',
+  expireTime: null,
+  "system": {
+  	"type": "chat.edit.system.newUser",
+    "value": "Bruneras"
+  }
+}
+
+
+{ author: { id: 4, name: 'User-4' },
+  type: 'text',
+  text: 'Amet est officia do laborum fugiat dolor ipsum laborum excepteur duis. from User-4',
+  mediaUrl: 'http://mediaUrl.jpg',
+  eventDate: '2017-09-18T17:00:14.447Z',
+  expireTime: null,
+  chatId: '34573465' }
+
+
+20 - 7000
+1 - x
 
 
 
