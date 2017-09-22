@@ -9,10 +9,10 @@ const environment = require('./lib/environment');
 
 //"latitude":-23.576252,"longitude":-46.65455
 
-let coord1 = { latitude:-23.57543134427412, longitude:-46.6568561758816 }
-let coord2 = { latitude:-23.57537546197285, longitude:-46.65683520962173 }
+let coord1 = { latitude: -23.5754310, longitude: -46.5754310 };
+let coord2 = { latitude: -23.5754319, longitude: -46.5754319 };
 
-//console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
+console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 
 
 
@@ -25,11 +25,11 @@ let restClient = new RestClient(environment);
 //carpetBombServer(environment.socket2);
 
 
-clientsInit(2, environment.socket2);
+clientsInit(1, environment.socket2);
 
 
 function clientsInit(max, socket) {
-  if(max > 100) {
+  if(max > 90) {
     setInterval(() => { carpetBombServer(socket) }, max);
   } else {
     for (let i = 0; i < max; i++) {
@@ -43,18 +43,18 @@ console.log(new Date(1511111119999));
 
 function carpetBombServer(socket) {
   let client = new net.Socket();
-  let userId = getRandomInt(2, 10) ; // 5
+  let userId = getRandomInt(2, 20) ; // 5
 
   client.connect(socket.port, socket.host, () => {
     //let spltMsg = messageSample(userId, 'shake');
     //client.write(messageSample(userId, 'chat-in').full);
     //setTimeout(() => { client.write(messageSample(userId, 'chat-msg').full) }, 100);
-    client.write(shake(userId).full);
+    //client.write(shake(userId).full);
     //client.write(keepAlive().full);
     
     //client.write(chatKick(userId).full); 
     //client.write(chatAdd(userId).full);
-    //client.write(messageSample(userId, 'chat-msg').full);
+    client.write(messageSample(userId, 'chat-msg').full);
     //setInterval(() => { client.write(messageSample2(userId, 'keep-alive').full) }, 3000);
     //setTimeout(() => { client.write(spltMsg.init) }, 1);
     //setTimeout(() => { client.write(spltMsg.end) }, 100);
@@ -101,14 +101,14 @@ function messageSample(num, eventType) {
     id: 34573465,
     author: {
       id: genId,
-      name: `User-${genId}`
+      name: `Bot-${genId}`
     },
-    text: `${loremIpsum({count: 1})} from User-${genId}`,
-    type: 'text',
+    text: `${loremIpsum({count: 1})} from Bot-${genId}`,
     expireTime: 30,
-    mediaUrl: 'http://mediaUrl.jpg'
     //eventDate: new Date(1511111119999),
-    //,system: { type: "chat.edit.system.newUser", value: "Bruneras" },
+    //system: { type: "chat.edit.system.newUser", value: "Bruneras" },
+    //mediaUrl: 'http://mediaUrl.jpg',
+    type: 'text'
   }
 
   return bufferizer(message);
@@ -122,11 +122,11 @@ function chatAdd(num) {
     token: environment.defaultTkn,
     author: {
       id: genId,
-      name: `User-${genId}`
+      name: `Bot-${genId}`
     },
-    text: `user Leo added to chat`,
+    text: `User Leo added to chat`,
     type: 'text',
-    target: {id: 7, name: 'Leo'}
+    target: { id: 7, name: 'Leo' }
   }
   return bufferizer(message);
 };
@@ -139,7 +139,7 @@ function chatKick(num) {
     token: environment.defaultTkn,
     author: {
       id: genId,
-      name: `User-${genId}`
+      name: `Bot-${genId}`
     },
     text: `user Leo removed from chat`,
     type: 'text',
@@ -155,9 +155,9 @@ function shake(num) {
     token: environment.defaultTkn,
     author: {
       id: genId,
-      name: `User-${genId}`,
+      name: `Bot-${genId}`,
       picture: {
-        url: 'www.url.com'
+        url: 'http://eliseinfotech.com/wp-content/uploads/2016/09/android-robot-icon-22.png'
       },
       latitude: parseFloat(`-23.5753${getRandomInt(00, 99)}`), 
       longitude: parseFloat(`-46.6569${getRandomInt(00, 99)}`)
@@ -186,6 +186,9 @@ function getRandomInt(min, max) {
 
 
 /*
+34573471
+34573471
+
 > use timehi
 switched to db timehi
 > db.messages.find({chatId: 34573465}).sort({createdAt:-1}).skip(0).limit(2).pretty()
@@ -271,6 +274,6 @@ updatedAt text
 20 - 7000
 1 - x
 
-
+http://chat-stage.timehi.com/v1/chat/34573471.000000/messages?page=1
 
 */
