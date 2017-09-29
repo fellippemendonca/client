@@ -25,7 +25,7 @@ let restClient = new RestClient(environment);
 //carpetBombServer(environment.socket2);
 
 
-clientsInit(1, environment.socket2);
+clientsInit(1, environment.socket);
 
 
 function clientsInit(max, socket) {
@@ -36,34 +36,38 @@ function clientsInit(max, socket) {
       carpetBombServer(socket);
     }
   }
-}
+};
 
 console.log(new Date(1511111119999));
 
 
 function carpetBombServer(socket) {
   let client = new net.Socket();
-  let userId = getRandomInt(2, 20) ; // 5
-
+  let userId = getRandomInt(2,2) ; // 5
   client.connect(socket.port, socket.host, () => {
     //let spltMsg = messageSample(userId, 'shake');
-    //client.write(messageSample(userId, 'chat-in').full);
-    //setTimeout(() => { client.write(messageSample(userId, 'chat-msg').full) }, 100);
+    
+    client.write(messageSample(userId, 'chat-in').full);
+
+    //testSample(event);
+    
+    setTimeout(() => { client.write(messageSample(userId, 'chat-msg').full) }, 100);
+    
     //client.write(shake(userId).full);
     //client.write(keepAlive().full);
     
     //client.write(chatKick(userId).full); 
     //client.write(chatAdd(userId).full);
-    client.write(messageSample(userId, 'chat-msg').full);
+    //client.write(messageSample(userId, 'chat-msg').full);
     //setInterval(() => { client.write(messageSample2(userId, 'keep-alive').full) }, 3000);
     //setTimeout(() => { client.write(spltMsg.init) }, 1);
     //setTimeout(() => { client.write(spltMsg.end) }, 100);
   });
 
   setTimeout(() => {
-      //client.write(messageSample(userId, 'chat-out').full);
+      client.write(messageSample(userId, 'chat-out').full);
       client.destroy();
-  }, 5000);
+  }, 1000);
 
   client.on('connect', function(data) {
     console.log(`userId: ${userId}, 'event': 'connect'`);
@@ -89,30 +93,36 @@ function carpetBombServer(socket) {
   });
 }
 
-
-
-
+function testSample(event) {
+  return bufferizer(JSON.parse(event)).full;
+};
 
 function messageSample(num, eventType) {
   let genId = num;
   var message = {
     event: eventType,
+    debug: true,
     token: environment.defaultTkn,
     id: 34573465,
     author: {
       id: genId,
-      name: `Bot-${genId}`
+      name: `Bruno from Future`,
+      picture: { url: 'https://timehi.s3-sa-east-1.amazonaws.com/user/3c22e4cc5332f30ca27f.jpg'}
     },
-    text: `${loremIpsum({count: 1})} from Bot-${genId}`,
-    expireTime: 30,
+    //text: `${new Date()}`,
+    text: `${loremIpsum({count: 1})}`,
+    //expireTime: 30,
     //eventDate: new Date(1511111119999),
     //system: { type: "chat.edit.system.newUser", value: "Bruneras" },
     //mediaUrl: 'http://mediaUrl.jpg',
-    type: 'text'
-  }
+    type: 'text'//,
+    //createdAt: new Date()
+  };
 
   return bufferizer(message);
 };
+
+
 
 function chatAdd(num) {
   let genId = num;
@@ -152,6 +162,7 @@ function shake(num) {
   let genId = num;
   var message = {
     event: 'shake',
+    //debug: true,
     token: environment.defaultTkn,
     author: {
       id: genId,
