@@ -11,6 +11,7 @@ let events = require('./lib/eventsSocket/events');
 
 let sockets = new socketsObject();
 
+/*
 let timeEvents = {};
 let timeEvent = new Date().getTime();
 console.log(timeEvent);
@@ -24,6 +25,31 @@ setInterval(() => {
   timeEvents[timeNow] = timeEvent;
   console.log(timeEvents);
 }, 1000);
+*/
+
+//periodicEvent(simpleMessage, 1);
+
+simpleMessage(1);
+
+function periodicEvent(fx, hz) {
+  fx(hz);
+  setInterval(() => { fx(hz) }, hz*1100);
+};
+
+// GROUP CHAT - 34573544
+// 1TO1  CHAT - 34573548
+
+//Simple Message
+function simpleMessage(time) {
+  sockets.connect({userId: 805, env: environment.socket.staging, delay: (time * 1/5)});
+  sockets.send({userId: 805, data: events.chatIn({chatId: 34573548}), delay: (time * 2/5)});
+  //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544, chatMessage: 'Comería o Tigas no corpo da Paola'}) , delay: (time * 3/5)});
+  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573548}) , delay: (time * 3/5)});
+  sockets.send({userId: 805, data: events.chatOut({chatId: 34573548}), delay: (time * 4/5)});
+  sockets.disconnect({userId: 805, delay: (time * 5/5)});
+}
+  
+
 
 // SHAKE TEST
 
@@ -108,25 +134,12 @@ let coord1 = { latitude: -23.5750606, longitude: -46.6568397 };
 let coord2 = { latitude: -23.5750523, longitude: -46.6568293 };
 console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 */
-/* 
-sockets.connect({userId: 734, env: environment.socket.staging, delay: 1});
-sockets.send({userId: 734, data: events.chatIn({chatId: 34573527}), delay: 2});
-sockets.send({userId: 734, data: events.chatMessage({chatId: 34573527}) , delay: 3});
-sockets.send({userId: 734, data: events.chatOut({chatId: 34573527}), delay: 4});
-sockets.disconnect({userId: 734, delay: 5});
-*/
 
-/*
-function socketClientsInit(max, socket) {
-  if(max > 90) {
-    setInterval(() => { socketClientExecutor(socket) }, max);
-  } else {
-    for (let i = 0; i < max; i++) {
-      socketClientExecutor(socket);
-    }
-  }
-};
-*/
+
+
+
+
+
 
 
 
@@ -415,4 +428,46 @@ ObjectId("5873ca0d80804e00015ab3f8")
 807
 810
 811
+
+
+Name:	queue-stage-chat	
+Default Visibility Timeout:	5 minutes
+URL:	https://sqs.sa-east-1.amazonaws.com/629832990358/queue-stage-chat	
+Message Retention Period:	4 days
+ARN:	arn:aws:sqs:sa-east-1:629832990358:queue-stage-chat	
+Maximum Message Size:	256 KB
+Created:	2017-08-17 18:00:37 GMT-03:00	
+Receive Message Wait Time:	10 seconds
+Last Updated:	2017-10-23 17:43:18 GMT-02:00	
+Messages Available (Visible):	0
+Delivery Delay:	0 seconds	
+Messages in Flight (Not Visible):	0
+Messages Delayed:	0
+
+
+{
+  "id" : 34573544,
+  "text" :
+  "message": "Bruneras : pela Paola Oliveira eu tomaria até caldo de cana...",
+  "imageProfile": "https://scontent.xx.fbcdn.net/v/t1.0-1/p50x50/766485_8474937375957u_7879874798794750_n.jpg?oh=hg5464htgdtryurhgf753jjkkfj&oe=6GHD5TGE"
+}
+
+
+
+{
+  "token" : "cicwGbd5kEY:APA91bHHAWsI08ySAr9jS7JAwdzFACrspU238ufIFBJgtoXRS0n3_05Kwuy6KJyiOYB30eWsLUHgyCyakEfIYX1KQwwLwIN67T02pxm1GYGDLeqRQ7boq37hQ61oTCMHaQrCtl-u6CJg",
+  "appVersion" : "1.0.0",
+  "carrier" : "Claro BR",
+  "model" : "ASUS_X00LD",
+  "os" : "android",
+  "osVersion" : "7.1.1",
+  "language" : "en_US"
+}
+
+
+34573544
+
+My 
+eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ODA5LCJ1c2VybmFtZSI6IkZlbGxpcHBlIiwibmFtZSI6IkZlbGxpcHBlIiwiZW1haWwiOiJmZWxsaXBwZS5tZW5kb25jYUBnbWFpbC5jb20iLCJiaW8iOiJLZWVwIGl0IHNpbXBsZS4iLCJwcml2YWN5IjoicHVibGljIiwidXNlckNvdW50cyI6eyJub3RpZmljYXRpb25zIjowLCJmb2xsb3dpbmciOjgsImZvbGxvd2VycyI6NywicG9zdHMiOjB9LCJ1c2VyTm90aWZpY2F0aW9ucyI6bnVsbCwicGljdHVyZSI6eyJ1cmwiOiJodHRwOi8vYXBpLXN0YWdlLnRpbWVoaS5jb20vdjEvbG9hZC9kMjk1NWVmOTFjZGIyZGRjN2M3NWRhODVlOTQ4YWJlMC5qcGVnIn0sImNvdmVyUGljdHVyZSI6bnVsbH0.__wcN4P4hADK0KYl5hl8iOnT8YkIOZcw9jMURyXFC6Y
+
 */
