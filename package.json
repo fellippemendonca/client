@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "client TCP",
   "dependencies": {
+    "aws-sdk": "^2.141.0",
     "bluebird": "^3.5.0",
     "lorem-ipsum": "^1.0.4",
     "mysql": "^2.13.0",

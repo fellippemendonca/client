@@ -8,6 +8,9 @@ const distMeter = require('./lib/distMeter');
 const environment = require('./lib/environment');
 const socketsObject = require('./lib/sockets');
 let events = require('./lib/eventsSocket/events');
+//let androidPush = require('./lib/eventsPush/android');
+//let iosPush = require('./lib/eventsPush/ios');
+
 
 let sockets = new socketsObject();
 
@@ -29,7 +32,7 @@ setInterval(() => {
 
 //periodicEvent(simpleMessage, 1);
 
-simpleMessage(1);
+//simpleMessage(1);
 
 function periodicEvent(fx, hz) {
   fx(hz);
@@ -470,4 +473,11 @@ Messages Delayed:	0
 My 
 eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ODA5LCJ1c2VybmFtZSI6IkZlbGxpcHBlIiwibmFtZSI6IkZlbGxpcHBlIiwiZW1haWwiOiJmZWxsaXBwZS5tZW5kb25jYUBnbWFpbC5jb20iLCJiaW8iOiJLZWVwIGl0IHNpbXBsZS4iLCJwcml2YWN5IjoicHVibGljIiwidXNlckNvdW50cyI6eyJub3RpZmljYXRpb25zIjowLCJmb2xsb3dpbmciOjgsImZvbGxvd2VycyI6NywicG9zdHMiOjB9LCJ1c2VyTm90aWZpY2F0aW9ucyI6bnVsbCwicGljdHVyZSI6eyJ1cmwiOiJodHRwOi8vYXBpLXN0YWdlLnRpbWVoaS5jb20vdjEvbG9hZC9kMjk1NWVmOTFjZGIyZGRjN2M3NWRhODVlOTQ4YWJlMC5qcGVnIn0sImNvdmVyUGljdHVyZSI6bnVsbH0.__wcN4P4hADK0KYl5hl8iOnT8YkIOZcw9jMURyXFC6Y
 
+
+@timestamp date
+@version text
+app_version text
+carrier text
+is_active boolean
+language text
 */
