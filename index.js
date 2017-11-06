@@ -8,11 +8,43 @@ const distMeter = require('./lib/distMeter');
 const environment = require('./lib/environment');
 const socketsObject = require('./lib/sockets');
 let events = require('./lib/eventsSocket/events');
+const SNS = require('./lib/eventsPush/SNS');
+
 //let androidPush = require('./lib/eventsPush/android');
 //let iosPush = require('./lib/eventsPush/ios');
 
 
 let sockets = new socketsObject();
+
+let message = {
+  title: 'TimeHi',
+  method: 'chat.new.1to1.message',
+  id: 34573548,
+  userId: 809,
+  message:  'Brunão Sarado: Olá Apple.'
+};
+
+
+
+
+
+
+
+
+let sns = new SNS(environment.push.snsAccessKey, environment.push.snsSecretAccessKey);
+
+sns.getPlatform('iOS')
+  .then(platform => {
+    let deviceToken = '0c4d9d785680b77906e6cfdd88a9513f72c427db5bf3ab6353eacc4a02e33242';
+    return sns.createEndpoint(platform, deviceToken);
+  })
+  .then(res => {
+    sns.send(res.EndpointArn, sns.formatApple(message))
+      .then(res => {
+        console.log(res);
+      })
+  });
+
 
 /*
 let timeEvents = {};
@@ -32,39 +64,30 @@ setInterval(() => {
 
 //periodicEvent(simpleMessage, 1);
 
-//simpleMessage(1);
-
-function periodicEvent(fx, hz) {
-  fx(hz);
-  setInterval(() => { fx(hz) }, hz*1100);
-};
-
 // GROUP CHAT - 34573544
 // 1TO1  CHAT - 34573548
 
-//Simple Message
+//simpleMessage(1);
 function simpleMessage(time) {
   sockets.connect({userId: 805, env: environment.socket.staging, delay: (time * 1/5)});
-  sockets.send({userId: 805, data: events.chatIn({chatId: 34573548}), delay: (time * 2/5)});
+  sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
   //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544, chatMessage: 'Comería o Tigas no corpo da Paola'}) , delay: (time * 3/5)});
-  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573548}) , delay: (time * 3/5)});
-  sockets.send({userId: 805, data: events.chatOut({chatId: 34573548}), delay: (time * 4/5)});
+  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 3/5)});
+  sockets.send({userId: 805, data: events.chatOut({chatId: 34573544}), delay: (time * 4/5)});
   sockets.disconnect({userId: 805, delay: (time * 5/5)});
 }
-  
 
-
-// SHAKE TEST
 
 /*
-sockets.connect({ userId: 734, env: environment.socket.local, delay: 1 });
-sockets.connect({ userId: 771, env: environment.socket.local, delay: 1 });
+// SHAKE TEST
+sockets.connect({ userId: 809, env: environment.socket.local, delay: 1 });
+sockets.connect({ userId: 805, env: environment.socket.local, delay: 1 });
 
-sockets.send({ userId: 734, data: events.shake(), delay: 2 });
-sockets.send({ userId: 771, data: events.shake(), delay: 4 });
+sockets.send({ userId: 809, data: events.shake(), delay: 2 });
+sockets.send({ userId: 805, data: events.shake(), delay: 4 });
 
-sockets.disconnect({ userId: 734, delay: 60 });
-sockets.disconnect({ userId: 771, delay: 60 });
+sockets.disconnect({ userId: 809, delay: 60 });
+sockets.disconnect({ userId: 805, delay: 60 });
 */
 
 /*
@@ -148,15 +171,32 @@ console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 
 //----------------------------------------------------------------------------------------
 
+
+
+//simpleRestRequest(environment.api.staging, '/v1/chat').then(res => { console.log(res) });
+
+//simpleRestRequest(environment.api.staging, '/v1/chat/34573548/messages?page=1').then(res => { console.log(res) });
+
+
+
 //restClientsInit(1, environment.api.staging, '/v1/chat');
-//restClientsInit(1000, environment.api.staging, '/v1/chat/34573465/messages?page=1');
+//restClientsInit(1, environment.api.staging, '/v1/chat/34573548/messages?page=1');
 //restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
 
 //restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
 
+
+function simpleRestRequest(env, path) {
+  let restClient = new RestClient(env.host, env.port);
+  restClient.headers.Authorization = env.token;
+  return restClient.get(path)
+  .then(res => { return res } )
+  .catch(err => { return err });
+};
 
 function restClientsInit(max, env, url) {
-  let restClient = new RestClient(env);
+  let restClient = new RestClient(env.host, env.port);
+  restClient.headers.Authorization = env.token;
   
   if(max > 90) {
     setInterval(() => {
@@ -164,11 +204,7 @@ function restClientsInit(max, env, url) {
       restClient.get(url)
       .then(resp => {
         console.log(`\n-----------\nElapsed: ${new Date() - start} ms`);
-        resp.body['chats'].map(element => {
-          console.log(element.id);
-          element.id === 34573509 ? console.log(element.members) : false;
-        });
-        //console.log(resp.body);
+        console.log(res);
       })
       .catch(err => { console.log(err) });
     }, max);
@@ -178,7 +214,7 @@ function restClientsInit(max, env, url) {
       restClient.get(url)
       .then(resp => {
         console.log(`\n-----------\nElapsed: ${new Date() - start} ms`);
-        console.log(resp.body);
+        console.log(resp);
       })
       .catch(err => { console.log(err) });
     }
@@ -193,7 +229,10 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-
+function periodicEvent(fx, hz) {
+  fx(hz);
+  setInterval(() => { fx(hz) }, hz*1100);
+};
 
 /*
 34573471
@@ -473,11 +512,14 @@ Messages Delayed:	0
 My 
 eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ODA5LCJ1c2VybmFtZSI6IkZlbGxpcHBlIiwibmFtZSI6IkZlbGxpcHBlIiwiZW1haWwiOiJmZWxsaXBwZS5tZW5kb25jYUBnbWFpbC5jb20iLCJiaW8iOiJLZWVwIGl0IHNpbXBsZS4iLCJwcml2YWN5IjoicHVibGljIiwidXNlckNvdW50cyI6eyJub3RpZmljYXRpb25zIjowLCJmb2xsb3dpbmciOjgsImZvbGxvd2VycyI6NywicG9zdHMiOjB9LCJ1c2VyTm90aWZpY2F0aW9ucyI6bnVsbCwicGljdHVyZSI6eyJ1cmwiOiJodHRwOi8vYXBpLXN0YWdlLnRpbWVoaS5jb20vdjEvbG9hZC9kMjk1NWVmOTFjZGIyZGRjN2M3NWRhODVlOTQ4YWJlMC5qcGVnIn0sImNvdmVyUGljdHVyZSI6bnVsbH0.__wcN4P4hADK0KYl5hl8iOnT8YkIOZcw9jMURyXFC6Y
 
-
-@timestamp date
-@version text
-app_version text
-carrier text
-is_active boolean
-language text
+{
+  "title": "TimeHi",
+  "method": "chat.new.1to1.message",
+  "id": 34573548,
+  "userId": 809,
+  "message": {
+    "en": "Brunão Sarado: Olá Apple.",
+    "pt": "Brunão Sarado: Olá Apple."
+  }
+}
 */
