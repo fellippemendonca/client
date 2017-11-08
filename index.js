@@ -16,34 +16,21 @@ const SNS = require('./lib/eventsPush/SNS');
 
 let sockets = new socketsObject();
 
-let message = {
-  title: 'TimeHi',
-  method: 'chat.new.1to1.message',
-  id: 34573548,
-  userId: 809,
-  message:  'Brunão Sarado: Olá Apple.'
-};
 
+//sns.createEndpoint(sns.platforms.iOS, deviceToken);
 
-
-
-
-
-
-
-let sns = new SNS(environment.push.snsAccessKey, environment.push.snsSecretAccessKey);
-
-sns.getPlatform('iOS')
-  .then(platform => {
-    let deviceToken = '0c4d9d785680b77906e6cfdd88a9513f72c427db5bf3ab6353eacc4a02e33242';
-    return sns.createEndpoint(platform, deviceToken);
-  })
-  .then(res => {
-    sns.send(res.EndpointArn, sns.formatApple(message))
-      .then(res => {
-        console.log(res);
-      })
-  });
+/*
+sns.getPlatforms(['google', 'iOS'])
+  .then(platforms => {
+    console.log(platforms)
+    return sns.createEndpoint(platforms.iOS, deviceToken);
+  }) */
+  //.then(res => { console.log(res);
+    //sns.send(res.EndpointArn, sns.formatApple(message))
+      //.then(res => {
+      //  console.log(res);
+      //})
+  //});
 
 
 /*
@@ -67,13 +54,13 @@ setInterval(() => {
 // GROUP CHAT - 34573544
 // 1TO1  CHAT - 34573548
 
-//simpleMessage(1);
+simpleMessage(1);
 function simpleMessage(time) {
   sockets.connect({userId: 805, env: environment.socket.staging, delay: (time * 1/5)});
-  sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
+  sockets.send({userId: 805, data: events.chatIn({chatId: 34573568}), delay: (time * 2/5)});
   //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544, chatMessage: 'Comería o Tigas no corpo da Paola'}) , delay: (time * 3/5)});
-  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 3/5)});
-  sockets.send({userId: 805, data: events.chatOut({chatId: 34573544}), delay: (time * 4/5)});
+  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573568}) , delay: (time * 3/5)});
+  sockets.send({userId: 805, data: events.chatOut({chatId: 34573568}), delay: (time * 4/5)});
   sockets.disconnect({userId: 805, delay: (time * 5/5)});
 }
 
