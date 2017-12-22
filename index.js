@@ -7,24 +7,49 @@ const bufferizer = require('./lib/bufferizer');
 const distMeter = require('./lib/distMeter');
 const environment = require('./lib/environment');
 const socketsObject = require('./lib/sockets');
-let events = require('./lib/eventsSocket/events');
 const SNS = require('./lib/eventsPush/SNS');
-
+let events = require('./lib/eventsSocket/events');
+let Redis = require('./lib/Redis');
 //let androidPush = require('./lib/eventsPush/android');
 //let iosPush = require('./lib/eventsPush/ios');
 
 
+//let redisClient = new Redis();
+
 let sockets = new socketsObject();
 
 
+let time = new Date('2017-12-04T13:52:59.045-02:00');
+//let time = new Date();
+let timeDelayed = new Date(time.getTime() + 29000);
+console.log(time)
+console.log(timeDelayed);
+
+
+
+function getIntValue(object, field) {
+  try { return parseInt(object[field]); }
+  catch (err) { return null; }
+};
+
+//console.log(redisClient);
+
+let sns = new SNS(environment.push.snsAccessKey, environment.push.snsSecretAccessKey);
+
+//redisClient.get('missingkey');
 //sns.createEndpoint(sns.platforms.iOS, deviceToken);
 
-/*
-sns.getPlatforms(['google', 'iOS'])
-  .then(platforms => {
-    console.log(platforms)
-    return sns.createEndpoint(platforms.iOS, deviceToken);
-  }) */
+//sns.listPlatforms(['google', 'dev_release_ios'])
+  //.then(platforms => {
+    //console.log(platforms)
+    //return sns.createEndpoint(platforms.iOS, deviceToken);
+  //})
+
+//sns.listPlatforms(['google', 'iOS'])
+  //.then(platforms => {
+    //console.log(platforms)
+    //return sns.createEndpoint(platforms.iOS, deviceToken);
+  //})
   //.then(res => { console.log(res);
     //sns.send(res.EndpointArn, sns.formatApple(message))
       //.then(res => {
@@ -53,29 +78,47 @@ setInterval(() => {
 
 // GROUP CHAT - 34573544
 // 1TO1  CHAT - 34573548
+// Bruno 805;
+// Eu 809;
 
-simpleMessage(1);
+simpleMessage(5);
 function simpleMessage(time) {
   sockets.connect({userId: 805, env: environment.socket.staging, delay: (time * 1/5)});
-  sockets.send({userId: 805, data: events.chatIn({chatId: 34573568}), delay: (time * 2/5)});
-  //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544, chatMessage: 'Comería o Tigas no corpo da Paola'}) , delay: (time * 3/5)});
-  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573568}) , delay: (time * 3/5)});
-  sockets.send({userId: 805, data: events.chatOut({chatId: 34573568}), delay: (time * 4/5)});
+  //sockets.connect({userId: 700, env: environment.socket.staging, delay: (time * 1/5)});
+  //sockets.connect({userId: 809, env: environment.socket.staging, delay: (time * 1/5)});
+  //sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
+  //sockets.send({userId: 700, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  //sockets.send({userId: 805, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  //sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 2/5)});
+  //sockets.send({userId: 809, data: events.chatMessage({chatId: 34573560}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessageCustom() , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessageFuture({chatId: 34573544}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessageExplosive({chatId: 34573544}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatKick({chatId: 34573568, targetId: 809}), delay: (time * 4/5)});
+  //sockets.send({userId: 805, data: events.chatOut({chatId: 34573544}), delay: (time * 4/5)});
   sockets.disconnect({userId: 805, delay: (time * 5/5)});
+  //sockets.disconnect({userId: 700, delay: (time * 5/5)});
 }
 
 
-/*
+
+
 // SHAKE TEST
-sockets.connect({ userId: 809, env: environment.socket.local, delay: 1 });
-sockets.connect({ userId: 805, env: environment.socket.local, delay: 1 });
+//shakeTest();
+function shakeTest() {
+  sockets.connect({ userId: 809, env: environment.socket.staging, delay: 1 });
+  sockets.connect({ userId: 805, env: environment.socket.staging, delay: 1 });
+  
+  sockets.send({ userId: 809, data: events.shake(), delay: 2 });
+  sockets.send({ userId: 805, data: events.shake(), delay: 3 });
+  
+  sockets.disconnect({ userId: 809, delay: 60 });
+  sockets.disconnect({ userId: 805, delay: 60 });
+}
 
-sockets.send({ userId: 809, data: events.shake(), delay: 2 });
-sockets.send({ userId: 805, data: events.shake(), delay: 4 });
 
-sockets.disconnect({ userId: 809, delay: 60 });
-sockets.disconnect({ userId: 805, delay: 60 });
-*/
 
 /*
 sockets.connect({ userId: 734, env: environment.socket.local, delay: 1 });
@@ -166,8 +209,10 @@ console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 
 
 
-//restClientsInit(1, environment.api.staging, '/v1/chat');
-//restClientsInit(1, environment.api.staging, '/v1/chat/34573548/messages?page=1');
+//restClientsInit(200, environment.api.staging, '/v1/chat');
+//restClientsInit(200, environment.api.staging, '/v1/user/809/posts?page=1&limit=1');
+
+//restClientsInit(1000, environment.api.staging, '/v1/chat/34573548/messages?page=1');
 //restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
 
 //restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
@@ -191,7 +236,7 @@ function restClientsInit(max, env, url) {
       restClient.get(url)
       .then(resp => {
         console.log(`\n-----------\nElapsed: ${new Date() - start} ms`);
-        console.log(res);
+        console.log(JSON.stringify(resp));
       })
       .catch(err => { console.log(err) });
     }, max);
@@ -201,7 +246,7 @@ function restClientsInit(max, env, url) {
       restClient.get(url)
       .then(resp => {
         console.log(`\n-----------\nElapsed: ${new Date() - start} ms`);
-        console.log(resp);
+        console.log(JSON.stringify(resp));
       })
       .catch(err => { console.log(err) });
     }
@@ -509,4 +554,38 @@ eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ODA5LCJ1c2VybmFtZSI6IkZlbGxpcHBlIiwibmFtZSI6IkZlbGx
     "pt": "Brunão Sarado: Olá Apple."
   }
 }
+
+
+{
+	"level": "error",
+  "message": TimeHi-CHAT -  [dao.elastic.MessagesDAO] - [mapper_parsing_exception] 
+  failed to parse [system_value] :: {"path":"/messages/message/5a0b19c14b319749df197479/_create",
+  "query":{},
+  "body":"{
+    "@createdAtTimestamp":"2017-11-14T16:28:49.251Z",
+    "@eventDateTimestamp":"2017-11-14T16:28:49.199Z",
+    "@updatedAtTimestamp":"2017-11-14T16:28:49.251Z",
+    "author_id":809,
+    "author_name":"Bot",
+    "chatId":34573568,
+    "createdAt":"2017-11-14T16:28:49.251Z",
+    "eventDate":"2017-11-14T16:28:49.199Z",
+    "mongo_id":"5a0b19c14b319749df197479",
+    "text":"user Bot removed from chat",
+    "type":"text",
+    "updatedAt":"2017-11-14T16:28:49.251Z",
+    "system_type":"chat.edit.system.userRemoved",
+    "system_value":{"id":809,"name":"Bot"}}",
+    "statusCode":400,
+    "response":"{"error":{
+      "root_cause":[{"type":"mapper_parsing_exception",
+      "reason":"failed to parse [system_value]"}],
+    "type":"mapper_parsing_exception",
+    "reason":"failed to parse [system_value]",
+    "caused_by":{"type":"illegal_state_exception",
+    "reason":"Can't get text on a START_OBJECT at 1:468"}},"status":400}"},
+	"timestamp": "2017-11-14T16:28:49.266Z"
+}
 */
+
+
