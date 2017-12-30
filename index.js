@@ -1,15 +1,7 @@
-const net = require('net');
-const Promise = require('bluebird');
-const loremIpsum = require('lorem-ipsum');
-const output = loremIpsum();
 const RestClient = require('./lib/RestClient');
-const bufferizer = require('./lib/bufferizer');
-const distMeter = require('./lib/distMeter');
 const environment = require('./lib/environment');
 const socketsObject = require('./lib/sockets');
-const SNS = require('./lib/eventsPush/SNS');
 let events = require('./lib/eventsSocket/events');
-let Redis = require('./lib/Redis');
 //let androidPush = require('./lib/eventsPush/android');
 //let iosPush = require('./lib/eventsPush/ios');
 
@@ -34,28 +26,6 @@ function getIntValue(object, field) {
 
 //console.log(redisClient);
 
-let sns = new SNS(environment.push.snsAccessKey, environment.push.snsSecretAccessKey);
-
-//redisClient.get('missingkey');
-//sns.createEndpoint(sns.platforms.iOS, deviceToken);
-
-//sns.listPlatforms(['google', 'dev_release_ios'])
-  //.then(platforms => {
-    //console.log(platforms)
-    //return sns.createEndpoint(platforms.iOS, deviceToken);
-  //})
-
-//sns.listPlatforms(['google', 'iOS'])
-  //.then(platforms => {
-    //console.log(platforms)
-    //return sns.createEndpoint(platforms.iOS, deviceToken);
-  //})
-  //.then(res => { console.log(res);
-    //sns.send(res.EndpointArn, sns.formatApple(message))
-      //.then(res => {
-      //  console.log(res);
-      //})
-  //});
 
 
 /*
