@@ -1,15 +1,7 @@
-const net = require('net');
-const Promise = require('bluebird');
-const loremIpsum = require('lorem-ipsum');
-const output = loremIpsum();
 const RestClient = require('./lib/RestClient');
-const bufferizer = require('./lib/bufferizer');
-const distMeter = require('./lib/distMeter');
 const environment = require('./lib/environment');
 const socketsObject = require('./lib/sockets');
-const SNS = require('./lib/eventsPush/SNS');
 let events = require('./lib/eventsSocket/events');
-let Redis = require('./lib/Redis');
 //let androidPush = require('./lib/eventsPush/android');
 //let iosPush = require('./lib/eventsPush/ios');
 
@@ -62,6 +54,7 @@ function fibonacci() {
 
 //console.log(redisClient);
 
+<<<<<<< HEAD
 let usr = {latitude: -23.575311, longitude: -46.656911};
 let msg = {latitude: -23.575311, longitude: -46.656911};
 
@@ -115,6 +108,8 @@ if (msg.latitude < lat1 || msg.latitude > lat2 || msg.longitude < lon1 || msg.lo
       //  console.log(res);
       //})
   //});
+=======
+>>>>>>> 37debedf55ca9190f75a5bcc4fb8115d47ffece7
 
 
 /*
