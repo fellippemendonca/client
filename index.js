@@ -16,25 +16,84 @@ let Redis = require('./lib/Redis');
 
 //let redisClient = new Redis();
 
+let timeNow = new Date();
+
 let sockets = new socketsObject();
 
+let hour = {
+  string: '2018-01-16T17:52:59.045-02:00'
+}
 
-let time = new Date('2017-12-04T13:52:59.045-02:00');
+let time = getDateValue(hour, 'string');
 //let time = new Date();
 let timeDelayed = new Date(time.getTime() + 29000);
-console.log(time)
-console.log(timeDelayed);
+console.log(`TimeNow: ${timeNow}`)
+console.log(`Time: ${time}`)
+console.log(`TimeDelayed: ${timeDelayed}`);
 
+time > timeNow ? console.log(true) : console.log(false);
 
+function getDateValue(object, field) {
+  try { return new Date(object[field]); }
+  catch (err) { return null; }
+}
 
 function getIntValue(object, field) {
   try { return parseInt(object[field]); }
   catch (err) { return null; }
 };
 
+
+//let value = fibonacci();
+//console.log(value);
+
+function fibonacci() {
+  let a = 1;
+  let b = 0;
+  
+  while (a < 4000000) {
+    let temp = a;
+    a = a + b;
+    b = temp;
+    console.log(a);
+  }
+  return a;
+};
+
 //console.log(redisClient);
 
-let sns = new SNS(environment.push.snsAccessKey, environment.push.snsSecretAccessKey);
+let usr = {latitude: -23.575311, longitude: -46.656911};
+let msg = {latitude: -23.575311, longitude: -46.656911};
+
+let angle = 0.009012;
+
+let lat1 = usr.latitude + 0.009012;
+let lat2 = usr.latitude - 0.009012;
+let lon1 = usr.longitude + 0.009012;
+let lon2 = usr.longitude - 0.009012;
+/*
+console.log(msg.latitude+' < '+lat1, msg.latitude < lat1 ? true:false); 
+console.log(msg.latitude+' > '+lat2, msg.latitude > lat2 ? true:false);
+console.log(msg.longitude+' < '+lon1, msg.longitude < lon1 ? true:false);
+console.log(msg.longitude+' > '+lon2, msg.longitude > lon2 ? true:false);
+
+
+if (msg.latitude < lat1 || msg.latitude > lat2 || msg.longitude < lon1 || msg.longitude > lon2) {
+
+  
+  console.log('send');
+}
+*/
+
+//let distance = distMeter.absoluteDistance(usr, msg);
+//console.log(distance);
+//console.log( Number((hdPlus*1000).toFixed(1)) );
+//console.log( Number((hdMinus*1000).toFixed(1)) );
+//console.log( Number((vdPlus*1000).toFixed(1)) );
+//console.log( Number((vdMinus*1000).toFixed(1)) );
+
+
+//let sns = new SNS(environment.push.snsAccessKey, environment.push.snsSecretAccessKey);
 
 //redisClient.get('missingkey');
 //sns.createEndpoint(sns.platforms.iOS, deviceToken);
@@ -81,14 +140,14 @@ setInterval(() => {
 // Bruno 805;
 // Eu 809;
 
-simpleMessage(5);
-function simpleMessage(time) {
+//simpleStagingMessage(5);
+function simpleStagingMessage(time) {
   sockets.connect({userId: 805, env: environment.socket.staging, delay: (time * 1/5)});
   //sockets.connect({userId: 700, env: environment.socket.staging, delay: (time * 1/5)});
   //sockets.connect({userId: 809, env: environment.socket.staging, delay: (time * 1/5)});
   //sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
   //sockets.send({userId: 700, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
-  //sockets.send({userId: 805, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 805, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
   //sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
   sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 2/5)});
   //sockets.send({userId: 809, data: events.chatMessage({chatId: 34573560}) , delay: (time * 3/5)});
@@ -97,9 +156,31 @@ function simpleMessage(time) {
   //sockets.send({userId: 805, data: events.chatMessageExplosive({chatId: 34573544}) , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatKick({chatId: 34573568, targetId: 809}), delay: (time * 4/5)});
+  //sockets.send({userId: 805, data: events.chatListen({chats: []}), delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatOut({chatId: 34573544}), delay: (time * 4/5)});
   sockets.disconnect({userId: 805, delay: (time * 5/5)});
-  //sockets.disconnect({userId: 700, delay: (time * 5/5)});
+  //sockets.disconnect({userId: 809, delay: (time * 5/5)});
+}
+
+simpleLocalMessage(30);
+function simpleLocalMessage(time) {
+  sockets.connect({userId: 809, env: environment.socket.local, delay: (time * 1/5)});
+  //sockets.connect({userId: 809, env: environment.socket.local, delay: (time * 1/5)});
+  //sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
+  //sockets.send({userId: 700, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  //sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 2/5)});
+  //sockets.send({userId: 809, data: events.chatMessage({chatId: 34573560}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessageCustom() , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessageFuture({chatId: 34573544}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessageExplosive({chatId: 34573544}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatKick({chatId: 34573568, targetId: 809}), delay: (time * 4/5)});
+  //sockets.send({userId: 805, data: events.chatListen({chats: []}), delay: (time * 3/5)});
+  //sockets.send({userId: 805, data: events.chatOut({chatId: 34573544}), delay: (time * 4/5)});
+  sockets.disconnect({userId: 809, delay: (time * 5/5)});
+  //sockets.disconnect({userId: 809, delay: (time * 5/5)});
 }
 
 
@@ -270,6 +351,8 @@ function periodicEvent(fx, hz) {
 34573471
 34573471
 
+db.devices.find({userId: 809}).sort({createdAt:-1}).pretty()
+
 > use timehi
 switched to db timehi
 > db.messages.find({chatId: 34573465}).sort({createdAt:-1}).skip(0).limit(2).pretty()
@@ -279,6 +362,12 @@ db.messages.find({ chatId: 34573465, $and: [ {createdAt: {$lt: new Date()}} ] })
 db.messages.find({ chatId: 34573465, createdAt: {$lt: new Date()} }).sort({createdAt:-1}).pretty()
 
 > db.activities.find({userId: 7}).sort({createdAt:-1}).skip(0).limit(2).pretty()
+
+
+
+db.messages.find( { chatId: 34573544, $and: [ {createdAt: {$lt: ISODate("2017-12-22T22:01:47.000Z")}}, {createdAt: {$gt: ISODate("2017-12-22T22:01:45.000Z")}} ] }).sort({createdAt:-1}).pretty()
+
+
 
 @createdAtTimestamp date
 author_id long
@@ -587,5 +676,3 @@ eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ODA5LCJ1c2VybmFtZSI6IkZlbGxpcHBlIiwibmFtZSI6IkZlbGx
 	"timestamp": "2017-11-14T16:28:49.266Z"
 }
 */
-
-
