@@ -1,4 +1,4 @@
-const RestClient = require('./lib/RestClient');
+const RestClient = require('./lib/restClient');
 const environment = require('./lib/environment');
 const socketsObject = require('./lib/sockets');
 let events = require('./lib/eventsSocket/events');
@@ -54,62 +54,6 @@ function fibonacci() {
 
 //console.log(redisClient);
 
-<<<<<<< HEAD
-let usr = {latitude: -23.575311, longitude: -46.656911};
-let msg = {latitude: -23.575311, longitude: -46.656911};
-
-let angle = 0.009012;
-
-let lat1 = usr.latitude + 0.009012;
-let lat2 = usr.latitude - 0.009012;
-let lon1 = usr.longitude + 0.009012;
-let lon2 = usr.longitude - 0.009012;
-/*
-console.log(msg.latitude+' < '+lat1, msg.latitude < lat1 ? true:false); 
-console.log(msg.latitude+' > '+lat2, msg.latitude > lat2 ? true:false);
-console.log(msg.longitude+' < '+lon1, msg.longitude < lon1 ? true:false);
-console.log(msg.longitude+' > '+lon2, msg.longitude > lon2 ? true:false);
-
-
-if (msg.latitude < lat1 || msg.latitude > lat2 || msg.longitude < lon1 || msg.longitude > lon2) {
-
-  
-  console.log('send');
-}
-*/
-
-//let distance = distMeter.absoluteDistance(usr, msg);
-//console.log(distance);
-//console.log( Number((hdPlus*1000).toFixed(1)) );
-//console.log( Number((hdMinus*1000).toFixed(1)) );
-//console.log( Number((vdPlus*1000).toFixed(1)) );
-//console.log( Number((vdMinus*1000).toFixed(1)) );
-
-
-//let sns = new SNS(environment.push.snsAccessKey, environment.push.snsSecretAccessKey);
-
-//redisClient.get('missingkey');
-//sns.createEndpoint(sns.platforms.iOS, deviceToken);
-
-//sns.listPlatforms(['google', 'dev_release_ios'])
-  //.then(platforms => {
-    //console.log(platforms)
-    //return sns.createEndpoint(platforms.iOS, deviceToken);
-  //})
-
-//sns.listPlatforms(['google', 'iOS'])
-  //.then(platforms => {
-    //console.log(platforms)
-    //return sns.createEndpoint(platforms.iOS, deviceToken);
-  //})
-  //.then(res => { console.log(res);
-    //sns.send(res.EndpointArn, sns.formatApple(message))
-      //.then(res => {
-      //  console.log(res);
-      //})
-  //});
-=======
->>>>>>> 37debedf55ca9190f75a5bcc4fb8115d47ffece7
 
 
 /*
@@ -157,15 +101,21 @@ function simpleStagingMessage(time) {
   //sockets.disconnect({userId: 809, delay: (time * 5/5)});
 }
 
-simpleLocalMessage(30);
+simpleLocalMessage(3);
 function simpleLocalMessage(time) {
   sockets.connect({userId: 809, env: environment.socket.local, delay: (time * 1/5)});
+  sockets.connect({userId: 805, env: environment.socket.local, delay: (time * 1/5)});
+  sockets.connect({userId: 806, env: environment.socket.local, delay: (time * 1/5)});
+  sockets.connect({userId: 807, env: environment.socket.local, delay: (time * 1/5)});
   //sockets.connect({userId: 809, env: environment.socket.local, delay: (time * 1/5)});
   //sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
   //sockets.send({userId: 700, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
-  sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 809, data: events.chatListen({userId: 809, chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 805, data: events.chatListen({userId: 805, chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 806, data: events.chatListen({userId: 809, chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 807, data: events.chatListen({userId: 805, chats: [34573544]}), delay: (time * 1/5)});
   //sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
-  //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 2/5)});
+  sockets.send({userId: 809, data: events.chatMessage({userId: 809, chatId: 34573544}) , delay: (time * 2/5)});
   //sockets.send({userId: 809, data: events.chatMessage({chatId: 34573560}) , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatMessageCustom() , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatMessageFuture({chatId: 34573544}) , delay: (time * 3/5)});
@@ -174,7 +124,8 @@ function simpleLocalMessage(time) {
   //sockets.send({userId: 805, data: events.chatKick({chatId: 34573568, targetId: 809}), delay: (time * 4/5)});
   //sockets.send({userId: 805, data: events.chatListen({chats: []}), delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatOut({chatId: 34573544}), delay: (time * 4/5)});
-  sockets.disconnect({userId: 809, delay: (time * 5/5)});
+  //sockets.disconnect({userId: 809, delay: (time * 5/5)});
+  //sockets.disconnect({userId: 805, delay: (time * 5/5)});
   //sockets.disconnect({userId: 809, delay: (time * 5/5)});
 }
 
