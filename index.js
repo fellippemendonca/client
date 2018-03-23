@@ -4,17 +4,24 @@ const socketsObject = require('./lib/sockets');
 let events = require('./lib/eventsSocket/events');
 //let androidPush = require('./lib/eventsPush/android');
 //let iosPush = require('./lib/eventsPush/ios');
+let sockets = new socketsObject();
 
 
 //let redisClient = new Redis();
 
+console.log(`, timestamp: ${new Date().toISOString()}`);
+
+let res = -(1);
+console.log(res);
+/*
 let timeNow = new Date();
 
-let sockets = new socketsObject();
 
 let hour = {
   string: '2018-01-16T17:52:59.045-02:00'
 }
+
+"latitude\":\"-23.55914668\",\"longitude\":\"-46.67837759\",
 
 let time = getDateValue(hour, 'string');
 //let time = new Date();
@@ -25,6 +32,7 @@ console.log(`TimeDelayed: ${timeDelayed}`);
 
 time > timeNow ? console.log(true) : console.log(false);
 
+
 function getDateValue(object, field) {
   try { return new Date(object[field]); }
   catch (err) { return null; }
@@ -34,7 +42,7 @@ function getIntValue(object, field) {
   try { return parseInt(object[field]); }
   catch (err) { return null; }
 };
-
+*/
 
 //let value = fibonacci();
 //console.log(value);
@@ -79,16 +87,16 @@ setInterval(() => {
 // Bruno 805;
 // Eu 809;
 
-//simpleStagingMessage(5);
+simpleStagingMessage(5);
 function simpleStagingMessage(time) {
   sockets.connect({userId: 805, env: environment.socket.staging, delay: (time * 1/5)});
   //sockets.connect({userId: 700, env: environment.socket.staging, delay: (time * 1/5)});
   //sockets.connect({userId: 809, env: environment.socket.staging, delay: (time * 1/5)});
   //sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
   //sockets.send({userId: 700, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
-  sockets.send({userId: 805, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
+  //sockets.send({userId: 805, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
   //sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
-  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 2/5)});
+  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573548}) , delay: (time * 2/5)});
   //sockets.send({userId: 809, data: events.chatMessage({chatId: 34573560}) , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatMessageCustom() , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatMessageFuture({chatId: 34573544}) , delay: (time * 3/5)});
@@ -101,21 +109,24 @@ function simpleStagingMessage(time) {
   //sockets.disconnect({userId: 809, delay: (time * 5/5)});
 }
 
-simpleLocalMessage(3);
+//simpleLocalMessage(3);
 function simpleLocalMessage(time) {
   sockets.connect({userId: 809, env: environment.socket.local, delay: (time * 1/5)});
-  sockets.connect({userId: 805, env: environment.socket.local, delay: (time * 1/5)});
-  sockets.connect({userId: 806, env: environment.socket.local, delay: (time * 1/5)});
-  sockets.connect({userId: 807, env: environment.socket.local, delay: (time * 1/5)});
+  sockets.connect({userId: 808, env: environment.socket.local, delay: (time * 1/5)});
+  //sockets.connect({userId: 807, env: environment.socket.local, delay: (time * 1/5)});
+  //sockets.connect({userId: 806, env: environment.socket.local, delay: (time * 1/5)});
   //sockets.connect({userId: 809, env: environment.socket.local, delay: (time * 1/5)});
   //sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
   //sockets.send({userId: 700, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
   sockets.send({userId: 809, data: events.chatListen({userId: 809, chats: [34573544]}), delay: (time * 1/5)});
-  sockets.send({userId: 805, data: events.chatListen({userId: 805, chats: [34573544]}), delay: (time * 1/5)});
-  sockets.send({userId: 806, data: events.chatListen({userId: 809, chats: [34573544]}), delay: (time * 1/5)});
-  sockets.send({userId: 807, data: events.chatListen({userId: 805, chats: [34573544]}), delay: (time * 1/5)});
+  sockets.send({userId: 808, data: events.chatListen({userId: 808, chats: [34573544]}), delay: (time * 1/5)});
+  //sockets.send({userId: 807, data: events.chatListen({userId: 807, chats: [34573544]}), delay: (time * 1/5)});
+  //sockets.send({userId: 806, data: events.chatListen({userId: 806, chats: [34573544]}), delay: (time * 1/5)});
   //sockets.send({userId: 809, data: events.chatListen({chats: [34573544]}), delay: (time * 1/5)});
-  sockets.send({userId: 809, data: events.chatMessage({userId: 809, chatId: 34573544}) , delay: (time * 2/5)});
+  //sockets.send({userId: 809, data: events.chatMessage({userId: 809, chatId: 34573544}) , delay: (time * 2/5)});
+  //sockets.send({userId: 806, data: events.chatAck({userId: 806, chatId: 34573544}) , delay: (time * 3/5)});
+  //sockets.send({userId: 806, data: events.chatTyping({userId: 806, chatId: 34573544}) , delay: (time * 3/5)});
+
   //sockets.send({userId: 809, data: events.chatMessage({chatId: 34573560}) , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatMessageCustom() , delay: (time * 3/5)});
   //sockets.send({userId: 805, data: events.chatMessageFuture({chatId: 34573544}) , delay: (time * 3/5)});
@@ -130,20 +141,48 @@ function simpleLocalMessage(time) {
 }
 
 
-
+//setInterval(() => {
+  //shakeTest();
+//}, 1000);
 
 // SHAKE TEST
-//shakeTest();
 function shakeTest() {
-  sockets.connect({ userId: 809, env: environment.socket.staging, delay: 1 });
   sockets.connect({ userId: 805, env: environment.socket.staging, delay: 1 });
+  sockets.connect({ userId: 806, env: environment.socket.staging, delay: 2 });
+  //sockets.connect({ userId: 807, env: environment.socket.local, delay: 3 });
+  //sockets.connect({ userId: 806, env: environment.socket.local, delay: 4 });
+  //sockets.connect({ userId: 805, env: environment.socket.local, delay: 5 });
+  //sockets.connect({ userId: 804, env: environment.socket.local, delay: 6 });
+  //sockets.connect({ userId: 803, env: environment.socket.local, delay: 7 });
+  //sockets.connect({ userId: 802, env: environment.socket.local, delay: 8 });
+  //sockets.connect({ userId: 801, env: environment.socket.local, delay: 9 });
+  //sockets.connect({ userId: 800, env: environment.socket.local, delay: 10 });
   
-  sockets.send({ userId: 809, data: events.shake(), delay: 2 });
-  sockets.send({ userId: 805, data: events.shake(), delay: 3 });
-  
-  sockets.disconnect({ userId: 809, delay: 60 });
-  sockets.disconnect({ userId: 805, delay: 60 });
+  sockets.send({ userId: 805, data: events.shake({ userId: 809 }), delay: 11 });
+  sockets.send({ userId: 806, data: events.shake({ userId: 808 }), delay: 12 });
+  //sockets.send({ userId: 807, data: events.shake({ userId: 807 }), delay: 13 });
+  //sockets.send({ userId: 806, data: events.shake({ userId: 806 }), delay: 14 });
+  //sockets.send({ userId: 805, data: events.shake({ userId: 805 }), delay: 15 });
+  //sockets.send({ userId: 804, data: events.shake({ userId: 804 }), delay: 16 });
+  //sockets.send({ userId: 803, data: events.shake({ userId: 803 }), delay: 17 });
+  //sockets.send({ userId: 802, data: events.shake({ userId: 802 }), delay: 18 });
+  //sockets.send({ userId: 801, data: events.shake({ userId: 801 }), delay: 19 });
+  //sockets.send({ userId: 800, data: events.shake({ userId: 800 }), delay: 20 });
+  /*
+  sockets.disconnect({ userId: 809, delay: 21 });
+  sockets.disconnect({ userId: 808, delay: 22 });
+  sockets.disconnect({ userId: 807, delay: 23 });
+  sockets.disconnect({ userId: 806, delay: 24 });
+  sockets.disconnect({ userId: 805, delay: 25 });
+  sockets.disconnect({ userId: 804, delay: 26 });
+  sockets.disconnect({ userId: 803, delay: 27 });
+  sockets.disconnect({ userId: 802, delay: 28 });
+  sockets.disconnect({ userId: 801, delay: 29 });
+  sockets.disconnect({ userId: 800, delay: 30 });
+  */
 }
+
+
 
 
 
@@ -241,7 +280,9 @@ console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 
 //restClientsInit(1000, environment.api.staging, '/v1/chat/34573548/messages?page=1');
 //restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
+/*
 
+*/
 //restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
 
 
@@ -621,4 +662,26 @@ eyJhbGciOiJIUzI1NiJ9.eyJpZCI6ODA5LCJ1c2VybmFtZSI6IkZlbGxpcHBlIiwibmFtZSI6IkZlbGx
     "reason":"Can't get text on a START_OBJECT at 1:468"}},"status":400}"},
 	"timestamp": "2017-11-14T16:28:49.266Z"
 }
+
+
+
+
+
+
+
+
+
+
+
+{"level":"info","message":"TimeHi-API -  [Controller.UserBuild.UpdateUserDevice] - UpdateUserDevice.createUserDevice() - requestData({\"body\":{\"appVersion\":\"1.2\",\"os\":\"iOS\",\"osVersion\":\"11.2.6\",\"model\":\"iPhone\",\"deviceKey\":\"bab3780574278ecb74c9101d1d9226f8\",\"language\":\"en_BR\",\"carrier\":\"Claro Brasil\",\"userId\":805}}) - Promise( RESOLVE SUCCESSFULLY )","timestamp":"2018-03-15T18:04:25.081Z"}
+{"level":"info","message":"TimeHi-API -  [Controller.UserBuild.UpdateUserDevice] - UpdateUserDevice.createUserDevice() - requestData({\"body\":{\"appVersion\":\"1.2\",\"os\":\"iOS\",\"osVersion\":\"11.2.6\",\"model\":\"iPhone\",\"deviceKey\":\"bab3780574278ecb74c9101d1d9226f8\",\"language\":\"en_BR\",\"carrier\":\"Claro Brasil\",\"userId\":805}}) - Promise( RESOLVE SUCCESSFULLY )","timestamp":"2018-03-15T18:09:25.083Z"}
+{"level":"info","message":"TimeHi-API -  [Controller.UserBuild.UpdateUserDevice] - UpdateUserDevice.createUserDevice() - requestData({\"body\":{\"appVersion\":\"1.2\",\"os\":\"iOS\",\"osVersion\":\"11.2.6\",\"model\":\"iPhone\",\"deviceKey\":\"bab3780574278ecb74c9101d1d9226f8\",\"language\":\"en_BR\",\"carrier\":\"Claro Brasil\",\"userId\":805}}) - Promise( RESOLVE SUCCESSFULLY )","timestamp":"2018-03-15T18:14:25.082Z"}
+
+
+
+
+
+
+
+
 */
