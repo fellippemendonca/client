@@ -1,30 +1,49 @@
+'use strict';
+
 const RestClient = require('./lib/restClient');
 const RestClientHttps = require('./lib/restClientHttps');
-
-const environment = require('./lib/environment');
-const socketsObject = require('./lib/sockets');
-const events = require('./lib/eventsSocket/events');
-//let androidPush = require('./lib/eventsPush/android');
-//let iosPush = require('./lib/eventsPush/ios');
+const https = require('https');
+const request = require('request');
 const fs = require('fs');
-
-let sockets = new socketsObject();
+const zlib = require('zlib');
 
 /*
 let restClientHttps = new RestClientHttps();
-restClientHttps.set('httpbin.org', 80, './lib/mdm-mtsk.dev.thinxnet.com.p12');
+restClientHttps.set('broker.mdm-portal.de', 443, '/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12', '');
 //restClient.headers.Authorization = env.token;
-restClientHttps.get('/get')
-.then(res => { console.log(res) } )
-.catch(err => { console.log(err) });
+restClientHttps.get('/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000')
+  .then(res => {
+    console.log(res);
+  })
+  .catch(err => { console.log(err) });
+
 */
 
-let restClient = new RestClient();
-restClient.set('httpbin.org', 80);
-restClient.headers.Authorization = 'hi123';
-restClient.get('/get')
-.then(res => { console.log(res) } )
-.catch(err => { console.log(err) });
+
+var options = {
+  url: 'https://broker.mdm-portal.de/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000',
+  headers: {
+    'Content-Type': 'text/xml',
+    'Accept-Encoding': 'gzip'
+  },
+  agentOptions: {
+    pfx: fs.readFileSync('/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12'),
+    passphrase: ''
+  }
+};
+
+request.get(options, (error, response, body) => {})
+  .pipe(zlib.createGunzip()) // unzip
+  .pipe(process.stdout);
+
+
+
+
+
+
+
+
+
 
 
 
