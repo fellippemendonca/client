@@ -1,116 +1,116 @@
 'use strict';
 
 const RestClient = require('./lib/restClient');
-const RestClientHttps = require('./lib/restClientHttps');
+const ClientHttps = require('./lib/clientHttps');
 const https = require('https');
 const request = require('request');
 const fs = require('fs');
 const zlib = require('zlib');
+const bl = require('bl');
+const parser = require('xml2json');
 
-/*
-let restClientHttps = new RestClientHttps();
-restClientHttps.set('broker.mdm-portal.de', 443, '/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12', '');
+
+
+
+
+
+
+
+//console.log(httpster());
+
+function httpster() {
+  let clientHttps = new ClientHttps();
+clientHttps.set('broker.mdm-portal.de', 443, '/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12', 'eXiuAXCbw7');
 //restClient.headers.Authorization = env.token;
-restClientHttps.get('/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000')
+clientHttps.get('/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000')
   .then(res => {
     console.log(res);
   })
   .catch(err => { console.log(err) });
-
-*/
-
-
-var options = {
-  url: 'https://broker.mdm-portal.de/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000',
-  headers: {
-    'Content-Type': 'text/xml',
-    'Accept-Encoding': 'gzip'
-  },
-  agentOptions: {
-    pfx: fs.readFileSync('/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12'),
-    passphrase: ''
-  }
 };
 
-request.get(options, (error, response, body) => {})
-  .pipe(zlib.createGunzip()) // unzip
-  .pipe(process.stdout);
+
+//requester();
+
+function requester() {
+  var options = {
+    url: 'https://broker.mdm-portal.de/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000',
+    headers: {
+      'Content-Type': 'text/xml',
+      'Accept-Encoding': 'gzip'
+    },
+    agentOptions: {
+      pfx: fs.readFileSync('/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12'),
+      passphrase: 'eXiuAXCbw7'
+    }
+  };
+  
+  request.get(options, (error, response, body) => {})
+    .pipe(zlib.createGunzip()) // unzip
+    .pipe(process.stdout);
+};
 
 
 
+httpsGet();
+function httpsGet() {
 
+  let options = {
+    hostname: 'broker.mdm-portal.de', 
+    port: '443',
+    path: '/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000',
+    method: 'GET',
+    headers: {
+      'Content-Type': 'text/xml',
+      'Accept-Encoding': 'gzip'
+    },
+    pfx: fs.readFileSync('/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12'),
+    passphrase: 'eXiuAXCbw7'
+  };
 
+  options.agent = new https.Agent(options);
 
+  https.get(options, (res) => {
+    //res.pipe(zlib.createGunzip()).pipe(process.stdout)
+    res.pipe(zlib.createGunzip()).pipe(bl((err, data) => {
 
+      let jsonObj = JSON.parse(parser.toJson(data.toString()));
 
+      let test = jsonObj.container.body.binary[0]['$t']
 
+      console.log(test);
+      
+      /*
+      let buffer = Buffer.from('');
+      for (let elem in jsonObj.container.body.binary) {
+        let code = jsonObj.container.body.binary[elem];
 
+        buffer = Buffer.concat([buffer, Buffer.from(code['$t'])]);
+      }
+      fs.writeFileSync('requestOutput', buffer);
+      */
+    }))
+  })
+  //.on('error', (e) => { console.error(`Got error: ${e.message}`) })
 
-
-
-
-
-
-
-
-
-
-
-
-// GROUP CHAT - 34573544
-// 1TO1  CHAT - 34573548
-// Bruno 805;
-// Eu 809;
-
-//simpleStagingMessage(5);
-function simpleStagingMessage(time) {
-  sockets.connect({userId: 805, env: environment.socket.staging, delay: (time * 1/5)});
-  //sockets.connect({userId: 700, env: environment.socket.staging, delay: (time * 1/5)});
-  //sockets.connect({userId: 809, env: environment.socket.staging, delay: (time * 1/5)});
-  //sockets.send({userId: 805, data: events.chatIn({chatId: 34573544}), delay: (time * 2/5)});
-  sockets.send({userId: 805, data: events.chatMessage({chatId: 34573548}) , delay: (time * 2/5)});
-  //sockets.send({userId: 809, data: events.chatMessage({chatId: 34573560}) , delay: (time * 3/5)});
-  //sockets.send({userId: 805, data: events.chatMessageCustom() , delay: (time * 3/5)});
-  //sockets.send({userId: 805, data: events.chatMessageFuture({chatId: 34573544}) , delay: (time * 3/5)});
-  //sockets.send({userId: 805, data: events.chatMessageExplosive({chatId: 34573544}) , delay: (time * 3/5)});
-  //sockets.send({userId: 805, data: events.chatMessage({chatId: 34573544}) , delay: (time * 3/5)});
-  //sockets.send({userId: 805, data: events.chatKick({chatId: 34573568, targetId: 809}), delay: (time * 4/5)});
-  //sockets.send({userId: 805, data: events.chatListen({chats: []}), delay: (time * 3/5)});
-  //sockets.send({userId: 805, data: events.chatOut({chatId: 34573544}), delay: (time * 4/5)});
-  sockets.disconnect({userId: 805, delay: (time * 5/5)});
-  //sockets.disconnect({userId: 809, delay: (time * 5/5)});
 }
 
 
+/*
+{ container: 
+   { 'xmlns:ns2': 'http://schemas.xmlsoap.org/ws/2002/07/utility',
+     xmlns: 'http://ws.bast.de/container/TrafficDataService',
+     'xmlns:ns3': 'http://www.w3.org/2000/09/xmldsig#',
+     header: { Identifier: [Object], 'ns2:Timestamp': [Object] },
+     body: { binary: [Array] } } }
 
-//setInterval(() => {
-  //shakeTest();
-//}, 1000);
-
-// SHAKE TEST
-function shakeTest() {
-  sockets.connect({ userId: 805, env: environment.socket.staging, delay: 1 });
-  sockets.connect({ userId: 806, env: environment.socket.staging, delay: 2 });
-  
-  
-  sockets.send({ userId: 805, data: events.shake({ userId: 809 }), delay: 11 });
-  sockets.send({ userId: 806, data: events.shake({ userId: 808 }), delay: 12 });
-  /*
-  sockets.disconnect({ userId: 805, delay: 21 });
-  sockets.disconnect({ userId: 806, delay: 22 });
-  */
-}
-
-
-
-
-
-
-/*  distance function test
-let coord1 = { latitude: -23.5750606, longitude: -46.6568397 };
-let coord2 = { latitude: -23.5750523, longitude: -46.6568293 };
-console.log(`Total Distance: ${distMeter(coord1, coord2)}`);
 */
+
+
+
+
+
+
 
 
 
@@ -204,5 +204,4 @@ updatedAt text
     value: { type: Object }
   }
 }
-
 */
