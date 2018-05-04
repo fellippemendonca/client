@@ -7,9 +7,12 @@ const request = require('request');
 const fs = require('fs');
 const zlib = require('zlib');
 const bl = require('bl');
-const parser = require('xml2json');
+const xml2json = require('xml2json');
 
 
+const xpath = require('xpath')
+const dom = require('xmldom').DOMParser
+ 
 
 
 
@@ -52,13 +55,14 @@ function requester() {
 
 
 
-httpsGet();
+
 function httpsGet() {
 
   let options = {
     hostname: 'broker.mdm-portal.de', 
     port: '443',
-    path: '/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000',
+    //path: '/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000',
+    path: '/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144001',
     method: 'GET',
     headers: {
       'Content-Type': 'text/xml',
@@ -71,73 +75,58 @@ function httpsGet() {
   options.agent = new https.Agent(options);
 
   https.get(options, (res) => {
-    //res.pipe(zlib.createGunzip()).pipe(process.stdout)
+
     res.pipe(zlib.createGunzip()).pipe(bl((err, data) => {
 
-      let jsonObj = JSON.parse(parser.toJson(data.toString()));
+      const xmlData = data.toString('utf-8');
+      const object = xmlToJson(xmlData);
+      let binary = object.container.body.binary;
+      for (let idx in binary) {
+        let currentBin = binary[idx]['$t'];
+        base64Gunzip(currentBin);
+      };
 
-      let test = jsonObj.container.body.binary[0]['$t']
-
-      console.log(test);
-      
-      /*
-      let buffer = Buffer.from('');
-      for (let elem in jsonObj.container.body.binary) {
-        let code = jsonObj.container.body.binary[elem];
-
-        buffer = Buffer.concat([buffer, Buffer.from(code['$t'])]);
-      }
-      fs.writeFileSync('requestOutput', buffer);
-      */
     }))
   })
-  //.on('error', (e) => { console.error(`Got error: ${e.message}`) })
+  .on('error', (e) => { console.error(`Got error: ${e.message}`) })
 
 }
 
-
-/*
-{ container: 
-   { 'xmlns:ns2': 'http://schemas.xmlsoap.org/ws/2002/07/utility',
-     xmlns: 'http://ws.bast.de/container/TrafficDataService',
-     'xmlns:ns3': 'http://www.w3.org/2000/09/xmldsig#',
-     header: { Identifier: [Object], 'ns2:Timestamp': [Object] },
-     body: { binary: [Array] } } }
-
-*/
+httpsGet();
 
 
 
 
+//readfile('./test.xml')
+//readfile('./test1.xml')
 
 
+function readfile(path) {
+  const testXml = fs.readFileSync(path, 'utf-8');
+  let obj =  xmlToJson(testXml);
+  let binary = obj.container.body.binary;
+
+  for (let idx in binary) {
+    let currentBin = binary[idx]['$t'];
+    base64Gunzip(currentBin);
+  };
+}
+
+function xmlToJson(xml) {
+  const json = xml2json.toJson(xml);
+  return JSON.parse(json);
+}
+
+function base64Gunzip(value) {
+  let buffer = Buffer.from(value, 'base64');
+  zlib.gunzip(buffer, (err, res) => {
+    value = res.toString();
+    value = xmlToJson(value)
+    //console.log(value.d2LogicalModel);
+  })
+};
 
 
-
-
-
-
-
-
-
-//----------------------------------------------------------------------------------------
-
-
-//simpleRestRequest(environment.api.staging, '/v1/chat').then(res => { console.log(res) });
-
-//simpleRestRequest(environment.api.staging, '/v1/chat/34573548/messages?page=1').then(res => { console.log(res) });
-
-
-
-//restClientsInit(200, environment.api.staging, '/v1/chat');
-//restClientsInit(200, environment.api.staging, '/v1/user/809/posts?page=1&limit=1');
-
-//restClientsInit(1000, environment.api.staging, '/v1/chat/34573548/messages?page=1');
-//restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
-/*
-
-*/
-//restClient.get('/v1/chat/34573465/messages?page=1').then(resp => { console.log(resp) }).catch(err => { console.log(err) });
 
 
 
@@ -153,6 +142,15 @@ function periodicEvent(fx, hz) {
   fx(hz);
   setInterval(() => { fx(hz) }, hz*1100);
 };
+
+
+function writeFile(path, content) {
+  fs.writeFile(path, content, function(err) {
+    if(err) { return console.log(err); }
+  }); 
+} 
+
+
 
 /*
 34573471
