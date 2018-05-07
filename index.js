@@ -8,29 +8,7 @@ const fs = require('fs');
 const zlib = require('zlib');
 const bl = require('bl');
 const xml2json = require('xml2json');
-
-
-const xpath = require('xpath')
-const dom = require('xmldom').DOMParser
- 
-
-
-
-
-
-
-//console.log(httpster());
-
-function httpster() {
-  let clientHttps = new ClientHttps();
-clientHttps.set('broker.mdm-portal.de', 443, '/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12', 'eXiuAXCbw7');
-//restClient.headers.Authorization = env.token;
-clientHttps.get('/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000')
-  .then(res => {
-    console.log(res);
-  })
-  .catch(err => { console.log(err) });
-};
+const Promise = require('bluebird');
 
 
 //requester();
@@ -55,50 +33,208 @@ function requester() {
 
 
 
+/*
+{ 'xmlns:ns2': 'http://schemas.xmlsoap.org/ws/2002/07/utility',
+  xmlns: 'http://ws.bast.de/container/TrafficDataService',
+  'xmlns:ns3': 'http://www.w3.org/2000/09/xmldsig#',
+  header: 
+   { Identifier: { publicationId: '2261000' },
+     'ns2:Timestamp': { 'ns2:Id': 'body', 'ns2:Created': '2018-05-07T12:01:15.436Z' } },
+  body: 
+   { binary: 
+      [ [Object],
 
-function httpsGet() {
+*/
+
+
+const hostGasStations = 'broker.mdm-portal.de';
+const pathGasStations = '/BASt-MDM-Interface/srv/container/v1.0';
+
+const certificate = '/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12';
+const passphrase = 'eXiuAXCbw7';
+
+
+
+
+//getStations().then(res => { console.log(res); });
+//getPrices().then(res => { console.log(res) });
+
+
+  //writeFile('getPrices.json', JSON.stringify(res));
+  
+
+
+
+function getStations() {
+  return new Promise((resolve, reject) => {
 
   let options = {
-    hostname: 'broker.mdm-portal.de', 
+    hostname: hostGasStations, 
     port: '443',
-    //path: '/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144000',
-    path: '/BASt-MDM-Interface/srv/container/v1.0?subscriptionID=3144001',
+    path: pathGasStations+'?subscriptionID=3144000',
     method: 'GET',
     headers: {
       'Content-Type': 'text/xml',
       'Accept-Encoding': 'gzip'
     },
-    pfx: fs.readFileSync('/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12'),
-    passphrase: 'eXiuAXCbw7'
+    pfx: fs.readFileSync(certificate),
+    passphrase: passphrase
   };
-
+  
   options.agent = new https.Agent(options);
 
-  https.get(options, (res) => {
+    https.get(options, (res) => {
 
-    res.pipe(zlib.createGunzip()).pipe(bl((err, data) => {
+      res
+        .pipe(zlib.createGunzip())
+        .pipe(bl((err, data) => {
+          
+          const xmlData = data.toString('utf-8');
+          let jsonObject = xmlToJson(xmlData);
+          let binaries = jsonObject.container.body.binary;
 
-      const xmlData = data.toString('utf-8');
-      const object = xmlToJson(xmlData);
-      let binary = object.container.body.binary;
-      for (let idx in binary) {
-        let currentBin = binary[idx]['$t'];
-        base64Gunzip(currentBin);
-      };
-
-    }))
+          extractBinaries(binaries, 'data')
+            .then((result) => {
+              resolve(result);
+            });
+        }))
+    })
+      .on('error', (err) => { reject(err); })
   })
-  .on('error', (e) => { console.error(`Got error: ${e.message}`) })
-
 }
 
-httpsGet();
+function getPrices() {
+  return new Promise((resolve, reject) => {
+
+  let options = {
+    hostname: hostGasStations, 
+    port: '443',
+    path: pathGasStations+'?subscriptionID=3144001',
+    method: 'GET',
+    headers: {
+      'Content-Type': 'text/xml',
+      'Accept-Encoding': 'gzip'
+    },
+    pfx: fs.readFileSync(certificate),
+    passphrase: passphrase
+  };
+  
+  options.agent = new https.Agent(options);
+
+    https.get(options, (res) => {
+
+      res
+        .pipe(zlib.createGunzip())
+        .pipe(bl((err, data) => {
+          
+          const xmlData = data.toString('utf-8');
+          let jsonObject = xmlToJson(xmlData);
+          let binaries = jsonObject.container.body.binary;
+
+          extractBinaries(binaries, 'price')
+            .then((result) => {
+              resolve(result);
+            });
+        }))
+    })
+      .on('error', (err) => { reject(err); })
+  })
+}
 
 
+// HELPERS
+
+function extractBinaries (binaries, type) {
+
+  return Promise.props({
+
+    binaries: Promise.map(binaries, (binary) => {
+
+      return base64Gunzip(binary['$t'])
+        .then((res) => {
+
+          let petrolStation = {};
+          
+          try {
+
+            type === 'price'?
+              petrolStation = formatStationPrice(res.d2LogicalModel.payloadPublication.petrolStationInformation)
+              : petrolStation = formatStationData(res.d2LogicalModel.payloadPublication.petrolStation)
+            
+          } catch (err) { console.log(err.message) };
+
+          return petrolStation;
+        });
+    })
+  })
+};
 
 
-//readfile('./test.xml')
-//readfile('./test1.xml')
+function formatStationData (input) {
+  
+  let formattedData = {
+    id: input.id,
+    name: input.petrolStationName,
+    number: input.petrolStationHouseNumber ,
+    city: input.petrolStationPlace,
+    street: input.petrolStationStreet,
+    brand: input.petrolStationBrand,
+    zip: input.petrolStationPostcode,
+  }
+
+  formattedData.latitude = typeof(input.petrolStationLocation) !== 'object' ? '' : input.petrolStationLocation.latitude;
+  formattedData.longitude = typeof(input.petrolStationLocation) !== 'object' ? '' :input.petrolStationLocation.longitude;
+
+  /*
+  formattedData.openingTimes = typeof(input.openingTimes) !== 'array' ? [] : input.openingTimes.map(elem => {
+    return {
+      recurringTimePeriodOfDay: {
+        startTimeOfPeriod: elem.recurringTimePeriodOfDay.startTimeOfPeriod,
+        endTimeOfPeriod: elem.recurringTimePeriodOfDay.endTimeOfPeriod
+      },
+      recurringDayWeekMonthPeriod: [
+        elem.recurringDayWeekMonthPeriod.applicableDay
+      ]
+    };
+  })
+  */
+
+  return formattedData;
+};
+
+function formatStationPrice (input) {
+  let formattedPrice = {};
+  input.petrolStationReference ? formattedPrice.id = input.petrolStationReference.id : false;
+  input.fuelPriceDiesel ? formattedPrice.diesel_value = input.fuelPriceDiesel.price : false;
+  input.fuelPriceE10 ? formattedPrice.e10_value = input.fuelPriceE10.price : false;
+  input.fuelPriceE5 ? formattedPrice.e5_value = input.fuelPriceE5.price : false;  
+
+  return formattedPrice;
+}
+
+
+function base64Gunzip(value) {
+  let buffer = Buffer.from(value, 'base64');
+  return new Promise((resolve, reject) => {
+    zlib.gunzip(buffer, (err, res) => {
+      const result = xmlToJson(res.toString());
+      resolve(result);
+    })
+  })
+};
+
+
+function xmlToJson(xml) {
+  const json = xml2json.toJson(xml);
+  return JSON.parse(json);
+}
+
+
+function writeFile(path, content) {
+  fs.writeFile(path, content, (err) => {
+    if(err) { return console.log(err); }
+  }); 
+} 
 
 
 function readfile(path) {
@@ -112,26 +248,15 @@ function readfile(path) {
   };
 }
 
-function xmlToJson(xml) {
-  const json = xml2json.toJson(xml);
-  return JSON.parse(json);
+function getValue(object, field) {
+  try {
+    return object[field];
+  } catch {
+    return {};
+  }
 }
 
-function base64Gunzip(value) {
-  let buffer = Buffer.from(value, 'base64');
-  zlib.gunzip(buffer, (err, res) => {
-    value = res.toString();
-    value = xmlToJson(value)
-    //console.log(value.d2LogicalModel);
-  })
-};
 
-
-
-
-
-
-// HELPERS
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -144,11 +269,7 @@ function periodicEvent(fx, hz) {
 };
 
 
-function writeFile(path, content) {
-  fs.writeFile(path, content, function(err) {
-    if(err) { return console.log(err); }
-  }); 
-} 
+
 
 
 
