@@ -33,20 +33,6 @@ function requester() {
 
 
 
-/*
-{ 'xmlns:ns2': 'http://schemas.xmlsoap.org/ws/2002/07/utility',
-  xmlns: 'http://ws.bast.de/container/TrafficDataService',
-  'xmlns:ns3': 'http://www.w3.org/2000/09/xmldsig#',
-  header: 
-   { Identifier: { publicationId: '2261000' },
-     'ns2:Timestamp': { 'ns2:Id': 'body', 'ns2:Created': '2018-05-07T12:01:15.436Z' } },
-  body: 
-   { binary: 
-      [ [Object],
-
-*/
-
-
 const hostGasStations = 'broker.mdm-portal.de';
 const pathGasStations = '/BASt-MDM-Interface/srv/container/v1.0';
 
