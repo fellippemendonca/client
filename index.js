@@ -170,6 +170,17 @@ function extractBinaries (binaries, type) {
 };
 
 
+function formatStationPrice (input) {
+  let formattedPrice = {};
+  input.petrolStationReference ? formattedPrice.id = input.petrolStationReference.id : false;
+  input.fuelPriceDiesel ? formattedPrice.diesel_value = input.fuelPriceDiesel.price : false;
+  input.fuelPriceE10 ? formattedPrice.e10_value = input.fuelPriceE10.price : false;
+  input.fuelPriceE5 ? formattedPrice.e5_value = input.fuelPriceE5.price : false;  
+
+  return formattedPrice;
+}
+
+
 function formatStationData (input) {
   
   let formattedData = {
@@ -201,16 +212,6 @@ function formatStationData (input) {
 
   return formattedData;
 };
-
-function formatStationPrice (input) {
-  let formattedPrice = {};
-  input.petrolStationReference ? formattedPrice.id = input.petrolStationReference.id : false;
-  input.fuelPriceDiesel ? formattedPrice.diesel_value = input.fuelPriceDiesel.price : false;
-  input.fuelPriceE10 ? formattedPrice.e10_value = input.fuelPriceE10.price : false;
-  input.fuelPriceE5 ? formattedPrice.e5_value = input.fuelPriceE5.price : false;  
-
-  return formattedPrice;
-}
 
 
 function base64Gunzip(value) {
