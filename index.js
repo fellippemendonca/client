@@ -18,7 +18,7 @@ firebaseApp.get();
 const message = {
   title: 'Test Title',
   body: 'This is a Test Notification Body'//,
-  //token: 'fLTVZLAYsH4:APA91bGk-xbVEoIxoIOKB1xKxe3Hlk2NGZNFE6qYsMqI9RuOw81nf7luxnnJ7NBu28o1B_V-N_kRGiJErnDFSlLLTfooixRx03T_-fKmlqOYCTxekWDq34EQzPcPQ_ENuOoYrcIDFAi0'
+  //token: 
 };
 
 firebaseAdmin.init();
