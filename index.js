@@ -1,309 +1,63 @@
 'use strict';
 
-const https = require('https');
 const fs = require('fs');
-const zlib = require('zlib');
-const bl = require('bl');
-const xml2json = require('xml2json');
 const Promise = require('bluebird');
-//var prettyjson = require('prettyjson');
+const _ = require('lodash');
+//let prettyjson = require('prettyjson');
+const stations = require('./lib/stations');
+const firebaseAdmin = require('./lib/firebaseAdmin');
+
+/*
+const firebaseApp = require('./lib/firebaseApp');
+
+firebaseApp.init();
+firebaseApp.get();
+
+*/
+
+const message = {
+  title: 'Test Title',
+  body: 'This is a Test Notification Body'//,
+  //token: 'fLTVZLAYsH4:APA91bGk-xbVEoIxoIOKB1xKxe3Hlk2NGZNFE6qYsMqI9RuOw81nf7luxnnJ7NBu28o1B_V-N_kRGiJErnDFSlLLTfooixRx03T_-fKmlqOYCTxekWDq34EQzPcPQ_ENuOoYrcIDFAi0'
+};
+
+firebaseAdmin.init();
+firebaseAdmin.send(message);
 
 
 
-const hostGasStations = 'broker.mdm-portal.de';
-const pathGasStations = '/BASt-MDM-Interface/srv/container/v1.0';
-const certificate = '/home/fellippe/Downloads/mdm-mtsk.dev.thinxnet.com.p12';
-const passphrase = 'eXiuAXCbw7';
 
 
 
 
-getStations().then(res => {
-  console.log(res);
-  //writeFile('./stationsData.json', JSON.stringify(res)); 
-  //writeFile('./prettyStationsData.json', prettyjson.render(res, { noColor: true })); 
-});
+
+
+
+
+
+
+
+
+
 
 
 /*
-//getPrices().then(res => { 
-  //console.log(res);
-  //writeFile('./stationsPrice.json', JSON.stringify(res)); 
+stations.getStations().then(res => { //console.log(res); writeFile('./stationsData.json', JSON.stringify(res)); 
+    //writeFile('./prettyStationsData.json', prettyjson.render(res, { noColor: true })); 
+  }).catch(err => { console.log(err); });
+
+
+stations.getPrices().then(res => {
+  //console.log(res); 
+  writeFile('./stationsPrice.json', JSON.stringify(res)); 
   //writeFile('./prettyStationsPrice.json', prettyjson.render(res, { noColor: true })); 
-//});
-*/
+})
+  .catch(err => { console.log(err); });
 
 
+  */
 
-
-
-
-
-
-function getStations() {
-  return new Promise((resolve, reject) => {
-
-  let options = {
-    hostname: hostGasStations, 
-    port: '443',
-    path: pathGasStations+'?subscriptionID=3144000',
-    method: 'GET',
-    headers: {
-      'Content-Type': 'text/xml',
-      'Accept-Encoding': 'gzip'
-    },
-    pfx: fs.readFileSync(certificate),
-    passphrase: passphrase
-  };
-  
-  options.agent = new https.Agent(options);
-
-    https.get(options, (res) => {
-
-      res
-        .pipe(zlib.createGunzip())
-        .pipe(bl((err, data) => {
-          
-          const xmlData = data.toString('utf-8');
-          const jsonObject = xmlToJson(xmlData);
-          const binaries = jsonObject.container.body.binary;
-
-          resolve(extractBinaries(binaries)
-            .then((res) => { return formatStationData(extractPetrolStations(res.binaries)); })
-          );
-
-        }))
-    })
-      .on('error', (err) => { reject(err); })
-  })
-}
-
-function getPrices() {
-  return new Promise((resolve, reject) => {
-
-  let options = {
-    hostname: hostGasStations, 
-    port: '443',
-    path: pathGasStations+'?subscriptionID=3144001',
-    method: 'GET',
-    headers: {
-      'Content-Type': 'text/xml',
-      'Accept-Encoding': 'gzip'
-    },
-    pfx: fs.readFileSync(certificate),
-    passphrase: passphrase
-  };
-  
-  options.agent = new https.Agent(options);
-
-    https.get(options, (res) => {
-
-      res
-        .pipe(zlib.createGunzip())
-        .pipe(bl((err, data) => {
-          
-          const xmlData = data.toString('utf-8');
-          const jsonObject = xmlToJson(xmlData);
-          const binaries = jsonObject.container.body.binary;
-
-          resolve(extractBinaries(binaries)
-            .then((res) => { return formatStationPrice(extractPetrolStations(res.binaries)); })
-          );
-
-        }))
-    })
-      .on('error', (err) => { reject(err); })
-  })
-}
-
-
-// HELPERS
-
-function extractBinaries (binaries) {
-  return Promise.props({
-    binaries: Promise.map(binaries, (binary) => {
-      return base64Gunzip(binary['$t'])
-        .then((res) => {
-          return res;
-        });
-    })
-  })
-};
-
-
-function extractPetrolStations(input) {
-
-  return input.reduce((result, elem) => {
-
-    const keyLogicalModel = searchKey(elem, 'LogicalModel');
-    const keyPayloadPublication = searchKey(elem[keyLogicalModel], 'payloadPublication');
-    const keyPetrolStation = searchKey(elem[keyLogicalModel][keyPayloadPublication], 'petrolStation');
-
-    let elemContens = elem[keyLogicalModel][keyPayloadPublication][keyPetrolStation];
-    
-    if (!Array.isArray(elemContens)) { elemContens = [elemContens] }
-
-    result = [...result, ...elemContens]; 
-
-    return result; 
-
-  }, []);
-};
-
-
-function formatStationPrice (input) {
-
-  return input.reduce((result, elem) => {
-
-    const fuelPriceDiesel = searchKey(elem, 'fuelPriceDiesel');
-    const fuelPriceE10 = searchKey(elem, 'fuelPriceE10');
-    const fuelPriceE5 = searchKey(elem, 'fuelPriceE5');
-
-    let formattedPrice = {};
-
-    elem[fuelPriceDiesel] ? formattedPrice.diesel_value = elem[fuelPriceDiesel].price : false;
-    elem[fuelPriceE10] ? formattedPrice.e10_value = elem[fuelPriceE10].price : false;
-    elem[fuelPriceE5] ? formattedPrice.e5_value = elem[fuelPriceE5].price : false; 
-
-    elem.petrolStationReference ? result[elem.petrolStationReference.id] = formattedPrice : false;
-
-
-    return result;
-
-  }, {});
-  
-};
-
-
-function formatStationData (input) {
-
-  return input.reduce((result, elem) => {
-
-    const petrolStationName = searchKey(elem, 'petrolStationName');
-    const petrolStationHouseNumber = searchKey(elem, 'petrolStationHouseNumber');
-    const petrolStationPlace = searchKey(elem, 'petrolStationPlace');
-    const petrolStationStreet = searchKey(elem, 'petrolStationStreet');
-    const petrolStationBrand = searchKey(elem, 'petrolStationBrand');
-    const petrolStationPostcode = searchKey(elem, 'petrolStationPostcode');
-
-    let formattedData = {
-      name: typeof(elem[petrolStationName]) === 'string' ? elem[petrolStationName] : '',
-      number: typeof(elem[petrolStationHouseNumber]) === 'string' ? elem[petrolStationHouseNumber] : '',
-      city: typeof(elem[petrolStationPlace]) === 'string' ? elem[petrolStationPlace] : '',
-      street: typeof(elem[petrolStationStreet]) === 'string' ? elem[petrolStationStreet] : '',
-      brand: typeof(elem[petrolStationBrand]) === 'string' ? elem[petrolStationBrand] : '',
-      zip: typeof(elem[petrolStationPostcode]) === 'string' ? elem[petrolStationPostcode] : '',
-    };
-    
-    formattedData.latitude = '1.1';
-      formattedData.longitude = '1.1';
-    /*
-    if (searchKey(elem, 'petrolStationLocation')) {
-      const petrolStationLocation = searchKey(elem, 'petrolStationLocation');
-      const latitude = searchKey(elem[petrolStationLocation], 'latitude');
-      const longitude = searchKey(elem[petrolStationLocation], 'longitude');
-
-      formattedData.latitude = typeof(elem[petrolStationLocation]) === 'object' ? elem[petrolStationLocation][latitude] : '1.1';
-      formattedData.longitude = typeof(elem[petrolStationLocation]) === 'object' ? elem[petrolStationLocation][longitude] : '1.1';
-    } else {
-      formattedData.latitude = '1.1';
-      formattedData.longitude = '1.1';
-    }
-    */
-    //typeof(elem.petrolStationLocation) !== 'object' ? console.log(elem) : false;
-
-    const openingTimes = searchKey(elem, 'openingTimes');
-    
-    if (elem[openingTimes]) {
-
-      if (Array.isArray(elem[openingTimes])) {
-
-        formattedData[openingTimes] = elem[openingTimes].map(time => {
-
-          const recurringTimePeriodOfDay = searchKey(time, 'recurringTimePeriodOfDay');
-          
-          const startTimeOfPeriod = searchKey(time[recurringTimePeriodOfDay], 'startTimeOfPeriod');
-          const endTimeOfPeriod = searchKey(time[recurringTimePeriodOfDay], 'endTimeOfPeriod');
-
-
-          const recurringDayWeekMonthPeriod = searchKey(time, 'recurringDayWeekMonthPeriod');
-          const applicableDay = searchKey(time[recurringDayWeekMonthPeriod], 'applicableDay');
-
-
-          return {
-            recurringTimePeriodOfDay: {
-              startTimeOfPeriod: time[recurringTimePeriodOfDay][startTimeOfPeriod],
-              endTimeOfPeriod: time[recurringTimePeriodOfDay][endTimeOfPeriod]
-            },
-            recurringDayWeekMonthPeriod: [
-              time[recurringDayWeekMonthPeriod][applicableDay]
-            ]
-          };
-        });
-
-      } /*else if (Array.isArray(elem[openingTimes].recurringDayWeekMonthPeriod.applicableDay)) {
-        
-        formattedData[openingTimes] = elem[openingTimes].recurringDayWeekMonthPeriod.applicableDay.map(day => {
-          return {
-            recurringTimePeriodOfDay: elem[openingTimes].recurringTimePeriodOfDay,
-            recurringDayWeekMonthPeriod: [ day ]
-          };
-        }); 
-
-      } else {
-        formattedData[openingTimes] = [
-          {
-            recurringTimePeriodOfDay: {
-              startTimeOfPeriod: elem[openingTimes].recurringTimePeriodOfDay.startTimeOfPeriod,
-              endTimeOfPeriod: elem[openingTimes].recurringTimePeriodOfDay.endTimeOfPeriod
-            },
-            recurringDayWeekMonthPeriod: [
-              elem[openingTimes].recurringDayWeekMonthPeriod.applicableDay
-            ]
-          }
-        ];
-      }*/
-
-    }
-    
-    result[elem.id] = formattedData;
-    
-    return result;
-
-  }, {});
-
-};
-
-
-
-function searchKey(object, value) {
-
-  const keys = Object.keys(object);
-  let found = undefined
-
-  keys.map(key => {
-    if (key.indexOf(value, 0) > -1) { found = key };
-  })
-  return found;
-};
-
-
-function base64Gunzip(value) {
-  let buffer = Buffer.from(value, 'base64');
-  return new Promise((resolve, reject) => {
-    zlib.gunzip(buffer, (err, res) => {
-      const result = xmlToJson(res.toString());
-      resolve(result);
-    })
-  })
-};
-
-
-function xmlToJson(xml) {
-  const json = xml2json.toJson(xml);
-  return JSON.parse(json);
-};
-
+////////////////////////////////////////////////////////////////////////////////not part of project
 
 function writeFile(path, content) {
   fs.writeFile(path, content, (err) => {
